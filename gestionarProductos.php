@@ -741,4 +741,4 @@ if (isset($_GET['error'])) {
 </body>
 </html>
 
-<?php include 'pie.php'; ?>
+<?php include 'pie.html'; ?>

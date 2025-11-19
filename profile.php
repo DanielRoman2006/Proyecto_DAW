@@ -53,7 +53,7 @@ if ($role === 'user' && isset($_SESSION['matricula'])) {
                         </table>
                         <div class="d-flex gap-2">
                             <a href="cambiar_contrasena.php" class="btn btn-warning">Cambiar contraseña</a>
-                            <a href="logout.php" class="btn btn-outline-secondary">Cerrar sesión</a>
+                            <a href="cerrar_sesion.php" class="btn btn-outline-secondary">Cerrar sesión</a>
                         </div>
                     <?php endif; ?>
                 </div>

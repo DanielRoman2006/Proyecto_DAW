@@ -7,8 +7,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $ident = trim($_POST['ident'] ?? '');
   $pass = trim($_POST['password'] ?? '');
 
-  $logged = false;
   if ($ident !== '') {
+    // 1) Intentar buscar administrador por nombre de usuario
+    $stmt = $conn->prepare('SELECT id_admin, usuario, nombre FROM administradores WHERE usuario = ? AND contraseña = ? LIMIT 1');
+    if ($stmt) {
+      $stmt->bind_param('ss', $ident, $pass);
+      $stmt->execute();
+      $res = $stmt->get_result();
+      if ($res && $res->num_rows === 1) {
+        $row = $res->fetch_assoc();
+        $_SESSION['role'] = 'admin';
+        $_SESSION['rol'] = 'admin';
+        $_SESSION['id_admin'] = $row['id_admin'];
+        $_SESSION['usuario'] = $row['usuario'] ?? $row['nombre'];
+        header('Location: paginaAdmin.php');
+        exit;
+      }
+    }
+
+    // 2) Si no se encontró y el identificador es numérico, intentar por id_admin
     if (ctype_digit($ident)) {
       $id_admin = intval($ident);
       $stmt = $conn->prepare('SELECT id_admin, usuario, nombre FROM administradores WHERE id_admin = ? AND contraseña = ? LIMIT 1');
@@ -19,14 +36,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($res && $res->num_rows === 1) {
           $row = $res->fetch_assoc();
           $_SESSION['role'] = 'admin';
+          $_SESSION['rol'] = 'admin';
           $_SESSION['id_admin'] = $row['id_admin'];
           $_SESSION['usuario'] = $row['usuario'] ?? $row['nombre'];
-          header('Location: dashboard_admin.php');
+          header('Location: paginaAdmin.php');
           exit;
         }
       }
     }
 
+    // 3) Intentar como usuario normal (matrícula)
     $stmt = $conn->prepare('SELECT matricula, nombre FROM usuarios WHERE matricula = ? AND contraseña = ? LIMIT 1');
     if ($stmt) {
       $stmt->bind_param('ss', $ident, $pass);
@@ -35,6 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       if ($res && $res->num_rows === 1) {
         $row = $res->fetch_assoc();
         $_SESSION['role'] = 'user';
+        $_SESSION['rol'] = 'user';
         $_SESSION['matricula'] = $row['matricula'];
         $_SESSION['nombre'] = $row['nombre'];
         header('Location: menu.php');

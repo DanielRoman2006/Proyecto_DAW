@@ -3,7 +3,8 @@ session_start();
 include 'conexion.php';
 
 if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'admin') {
-    echo "<p style='color:red; text-align:center;'>⛔ Acceso denegado. Solo administradores.</p>";
+    // Usamos clases bootstrap para el mensaje de error de acceso
+    echo "<div class='container mt-5'><div class='alert alert-danger text-center' role='alert'>⛔ Acceso denegado. Solo administradores.</div></div>";
     exit();
 }
 
@@ -38,7 +39,7 @@ if (isset($_GET['success'])) {
 }
 
 if (isset($_GET['error'])) {
-    $tipo_mensaje = 'error';
+    $tipo_mensaje = 'danger'; // Bootstrap usa 'danger' para errores
     if ($_GET['error'] === 'actualizar') {
         $mensaje = "❌ Error al actualizar el estado del pedido";
     }
@@ -84,430 +85,190 @@ $resultadoPedidos = mysqli_query($conn, $queryPedidos);
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Pedidos Pendientes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Pedidos Pendientes</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="estilo.css">
-  <style>
-    ul {
-  list-style: none;
-  padding: 0;
-  margin: 30px auto;
-  max-width: 400px;
-  background-color: #fff3e0;
-  border-radius: 12px;
-  box-shadow: 0 0 12px rgba(0,0,0,0.1);
-}
-
-li {
-  margin: 15px 0;
-}
-
-a {
-  text-decoration: none;
-  display: block;
-}
-
-button {
-  width: 100%;
-  background-color: #e67e22;
-  color: white;
-  padding: 12px 20px;
-  font-size: 18px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-button:hover {
-  background-color: #ca6b1e;
-}
-/* Estilos para las cartas de pedidos - mismo estilo que menu.php */
-.pedidos-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: center;
-  margin: 2rem auto;
-  max-width: 1200px;
-}
-
-.pedido-card {
-  background-color: #fff3e0;
-  border-radius: 1rem;
-  width: 20rem;
-  min-height: 16rem;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  box-shadow: 0 4px 8px rgba(255,111,0,0.3);
-  transition: transform 0.3s ease;
-  color: #4a2c0f;
-}
-
-.pedido-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 16px rgba(255,111,0,0.5);
-}
-
-.pedido-header {
-  background-color: #ffcc80;
-  border-radius: 0.5rem;
-  padding: 0.75rem;
-  text-align: center;
-  font-weight: 600;
-}
-
-.pedido-info {
-  font-size: 0.9rem;
-  line-height: 1.4;
-}
-
-.pedido-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: auto;
-}
-
-.btn-entregar {
-  flex: 1;
-  background: linear-gradient(0deg, #4caf50 50%, #fff7f0 125%);
-  border: 2px solid rgba(76,175,80,0.5);
-  border-radius: 0.5rem;
-  color: #2e7d32;
-  padding: 0.5rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-entregar:hover {
-  background-color: #2e7d32;
-  color: white;
-}
-
-/* Estilos específicos para select en las tarjetas de pedidos */
-.pedido-actions select {
-  width: 100% !important;
-  padding: 8px !important;
-  font-size: 14px !important;
-  border-radius: 6px !important;
-  border: 1px solid #ccc !important;
-  margin-bottom: 8px !important;
-  background-color: white !important;
-}
-
-.section-title {
-  text-align: center;
-  color: #bf360c;
-  margin: 2rem 0 1rem 0;
-  font-size: 1.8rem;
-}
-
-/* Estilos para mensajes de confirmación */
-.mensaje-container {
-  max-width: 600px;
-  margin: 1rem auto;
-  padding: 0 1rem;
-}
-
-.mensaje {
-  padding: 1rem 1.5rem;
-  border-radius: 0.5rem;
-  margin-bottom: 1rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  animation: slideDown 0.3s ease-out;
-}
-
-.mensaje.success {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-
-.mensaje.error {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.mensaje-close {
-  margin-left: auto;
-  cursor: pointer;
-  font-size: 1.2rem;
-  opacity: 0.7;
-}
-
-.mensaje-close:hover {
-  opacity: 1;
-}
-
-/* Estilos para el buscador */
-.search-container {
-  max-width: 1200px;
-  margin: 2rem auto;
-  padding: 1.5rem;
-  background-color: #fff3e0;
-  border-radius: 1rem;
-  box-shadow: 0 4px 8px rgba(255,111,0,0.3);
-}
-
-.search-form {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr auto;
-  gap: 1rem;
-  align-items: end;
-}
-
-.search-field {
-  display: flex;
-  flex-direction: column;
-}
-
-.search-field label {
-  font-weight: 600;
-  color: #4a2c0f;
-  margin-bottom: 0.5rem;
-}
-
-.search-field input,
-.search-field select {
-  padding: 0.75rem !important;
-  border: 2px solid #ffcc80 !important;
-  border-radius: 0.5rem !important;
-  font-size: 1rem !important;
-  background-color: white !important;
-  transition: border-color 0.3s ease !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
-  margin: 0 !important;
-}
-
-.search-field input:focus,
-.search-field select:focus {
-  outline: none !important;
-  border-color: #e67e22 !important;
-}
-
-.search-buttons {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.btn-search {
-  background: linear-gradient(0deg, #e67e22 50%, #fff7f0 125%);
-  color: white;
-  border: 2px solid rgba(230,126,34,0.5);
-  border-radius: 0.5rem;
-  padding: 0.75rem 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 600;
-}
-
-.btn-search:hover {
-  background-color: #bf5d1a;
-  transform: translateY(-2px);
-}
-
-.btn-clear {
-  background: linear-gradient(0deg, #95a5a6 50%, #fff7f0 125%);
-  color: white;
-  border: 2px solid rgba(149,165,166,0.5);
-  border-radius: 0.5rem;
-  padding: 0.75rem 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.btn-clear:hover {
-  background-color: #7f8c8d;
-  transform: translateY(-2px);
-}
-
-.search-stats {
-  margin-top: 1rem;
-  text-align: center;
-  color: #4a2c0f;
-  font-weight: 500;
-}
-
-@media (max-width: 768px) {
-  .search-form {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
   
-  .search-buttons {
-    justify-content: center;
-  }
-}
+  <style>
+      /* Pequeños ajustes personalizados para mantener los colores de tu marca */
+      .bg-orange-subtle { background-color: #fff3e0; }
+      .btn-orange { background-color: #e67e22; color: white; border: none; }
+      .btn-orange:hover { background-color: #ca6b1e; color: white; }
+      .text-orange { color: #bf360c; }
+      .card-hover:hover { transform: translateY(-5px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important; transition: all 0.3s; }
   </style>
 </head>
-<body>
+<body class="bg-light">
 
-<ul>
-  <a href="gestionarProductos.php"><li><button>Gestionar Productos</button></li></a>
-  <a href="agregarU.php"><li><button>Agregar Usuario</button></li></a>
-  <a href="gestionUsuarios.php"><li><button>Gestionar Usuarios</button></li></a>
-</ul>
+<div class="container py-4">
 
-<!-- Buscador de pedidos -->
-<div class="search-container">
-  <form method="GET" class="search-form">
-    <div class="search-field">
-      <label for="buscar">🔍 Buscar por número de orden, matrícula o producto:</label>
-      <input type="text" 
-             id="buscar" 
-             name="buscar" 
-             value="<?= htmlspecialchars($buscar) ?>" 
-             placeholder="Ejemplo: 12345, A01234567, hamburguesa...">
+    <div class="d-flex justify-content-center gap-3 mb-5 flex-wrap">
+        <a href="gestionarProductos.php" class="btn btn-orange btn-lg shadow-sm">Gestionar Productos</a>
+        <a href="agregarU.php" class="btn btn-orange btn-lg shadow-sm">Agregar Usuario</a>
+        <a href="gestionUsuarios.php" class="btn btn-orange btn-lg shadow-sm">Gestionar Usuarios</a>
     </div>
-    
-    <div class="search-field">
-      <label for="estado">🕒 Filtrar por estado:</label>
-      <select id="estado" name="estado">
-        <option value="">Todos los estados</option>
-        <option value="pendiente" <?= $estado_filtro === 'pendiente' ? 'selected' : '' ?>>Pendiente</option>
-        <option value="en_preparacion" <?= $estado_filtro === 'en_preparacion' ? 'selected' : '' ?>>En preparación</option>
-        <option value="listo" <?= $estado_filtro === 'listo' ? 'selected' : '' ?>>Listo</option>
-        <option value="entregado" <?= $estado_filtro === 'entregado' ? 'selected' : '' ?>>Entregado</option>
-        <option value="cancelado" <?= $estado_filtro === 'cancelado' ? 'selected' : '' ?>>Cancelado</option>
-      </select>
-    </div>
-    
-    <div class="search-field">
-      <label for="fecha">📅 Filtrar por fecha:</label>
-      <input type="date" 
-             id="fecha" 
-             name="fecha" 
-             value="<?= htmlspecialchars($fecha_filtro) ?>">
-    </div>
-    
-    <div class="search-buttons">
-      <button type="submit" class="btn-search">🔍 Buscar</button>
-      <a href="paginaAdmin.php" class="btn-clear">🗑️ Limpiar</a>
-    </div>
-  </form>
-  
-  <?php 
-  // Mostrar estadísticas de búsqueda
-  $total_pedidos = mysqli_num_rows($resultadoPedidos);
-  $filtros_activos = [];
-  if (!empty($buscar)) $filtros_activos[] = "búsqueda: '$buscar'";
-  if (!empty($estado_filtro)) $filtros_activos[] = "estado: " . ucfirst(str_replace('_', ' ', $estado_filtro));
-  if (!empty($fecha_filtro)) $filtros_activos[] = "fecha: $fecha_filtro";
-  ?>
-  
-  <div class="search-stats">
-    📊 Mostrando <?= $total_pedidos ?> pedido(s)
-    <?php if (!empty($filtros_activos)): ?>
-      con filtros: <?= implode(', ', $filtros_activos) ?>
-    <?php endif; ?>
-  </div>
-</div>
 
-<h2 class="section-title">
-  📋 Pedidos 
-  <?php 
-    if (!empty($estado_filtro)) {
-      echo ucfirst(str_replace('_', ' ', $estado_filtro));
-    } elseif (!empty($buscar) || !empty($fecha_filtro)) {
-      echo "coincidentes";
-    } else {
-      echo "pendientes";
-    }
-  ?>
-</h2>
+    <div class="card shadow-sm border-warning mb-5 bg-orange-subtle">
+        <div class="card-body p-4">
+            <form method="GET" class="row g-3 align-items-end search-form">
+                <div class="col-md-5 search-field">
+                    <label for="buscar" class="form-label fw-bold">🔍 Buscar:</label>
+                    <input type="text" class="form-control border-warning" id="buscar" name="buscar" 
+                           value="<?= htmlspecialchars($buscar) ?>" 
+                           placeholder="Orden, matrícula o producto...">
+                </div>
+                
+                <div class="col-md-3 search-field">
+                    <label for="estado" class="form-label fw-bold">🕒 Estado:</label>
+                    <select id="estado" name="estado" class="form-select border-warning">
+                        <option value="">Todos los estados</option>
+                        <option value="pendiente" <?= $estado_filtro === 'pendiente' ? 'selected' : '' ?>>Pendiente</option>
+                        <option value="en_preparacion" <?= $estado_filtro === 'en_preparacion' ? 'selected' : '' ?>>En preparación</option>
+                        <option value="listo" <?= $estado_filtro === 'listo' ? 'selected' : '' ?>>Listo</option>
+                        <option value="entregado" <?= $estado_filtro === 'entregado' ? 'selected' : '' ?>>Entregado</option>
+                        <option value="cancelado" <?= $estado_filtro === 'cancelado' ? 'selected' : '' ?>>Cancelado</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-2 search-field">
+                    <label for="fecha" class="form-label fw-bold">📅 Fecha:</label>
+                    <input type="date" class="form-control border-warning" id="fecha" name="fecha" 
+                           value="<?= htmlspecialchars($fecha_filtro) ?>">
+                </div>
+                
+                <div class="col-md-2 search-buttons d-flex gap-2">
+                    <button type="submit" class="btn btn-orange w-100">🔍 Buscar</button>
+                    <a href="paginaAdmin.php" class="btn btn-secondary w-auto" title="Limpiar">🗑️</a>
+                </div>
+            </form>
 
-<?php if (!empty($mensaje)): ?>
-<div class="mensaje-container">
-  <div class="mensaje <?= $tipo_mensaje ?>" id="mensaje">
-    <span><?= $mensaje ?></span>
-    <span class="mensaje-close" onclick="cerrarMensaje()">&times;</span>
-  </div>
-</div>
-<?php endif; ?>
-
-<div class="pedidos-container">
-<?php
-if ($resultadoPedidos && mysqli_num_rows($resultadoPedidos) > 0) {
-  while ($pedido = mysqli_fetch_assoc($resultadoPedidos)) {
-?>
-    <div class="pedido-card">
-      <div class="pedido-header">Pedido #<?= htmlspecialchars($pedido['numero_orden']) ?></div>
-      <div class="pedido-info">
-        <strong>👤 Matrícula:</strong> <?= htmlspecialchars($pedido['matricula']) ?><br>
-        <strong>📅 Fecha:</strong> <?= date('d/m/Y H:i', strtotime($pedido['fecha_hora_pedido'])) ?><br>
-        <strong>🕒 Estado:</strong> <?= ucfirst($pedido['estado_pedido']) ?><br>
-        <strong>💰 Total:</strong> $<?= number_format($pedido['total'], 2) ?><br>
-        <strong>🍽️ Productos:</strong> <?= htmlspecialchars($pedido['productos'] ?: 'Sin productos') ?><br>
-        <?php if (!empty($pedido['notas_productos'])): ?>
-          <strong>📝 Notas productos:</strong> <?= htmlspecialchars($pedido['notas_productos']) ?><br>
-        <?php endif; ?>
-        <?php if (!empty($pedido['notas'])): ?>
-          <strong>📋 Notas generales:</strong> <?= htmlspecialchars($pedido['notas']) ?><br>
-        <?php endif; ?>
-        <?php if ($pedido['sancionado'] == 1): ?>
-          <strong>⚠️ Sancionado:</strong> <span style="color: red;">Sí</span>
-        <?php endif; ?>
-      </div>
-      <div class="pedido-actions">
-        <form method="POST">
-          <input type="hidden" name="id_pedido" value="<?= $pedido['id_pedido'] ?>">
-          <select name="nuevo_estado">
-            <?php
-            $estados = ['pendiente', 'en_preparacion', 'listo', 'entregado', 'cancelado'];
-            foreach ($estados as $estado) {
-              $selected = $pedido['estado_pedido'] === $estado ? 'selected' : '';
-              echo "<option value=\"$estado\" $selected>" . ucfirst($estado) . "</option>";
-            }
+            <?php 
+            // Mostrar estadísticas de búsqueda
+            $total_pedidos = mysqli_num_rows($resultadoPedidos);
+            $filtros_activos = [];
+            if (!empty($buscar)) $filtros_activos[] = "búsqueda: '$buscar'";
+            if (!empty($estado_filtro)) $filtros_activos[] = "estado: " . ucfirst(str_replace('_', ' ', $estado_filtro));
+            if (!empty($fecha_filtro)) $filtros_activos[] = "fecha: $fecha_filtro";
             ?>
-          </select>
-          <button type="submit" name="actualizar_estado" class="btn-entregar">✏️ Cambiar Estado</button>
-        </form>
-      </div>
+            
+            <div class="search-stats text-center mt-3 text-muted fw-medium">
+                📊 Mostrando <?= $total_pedidos ?> pedido(s)
+                <?php if (!empty($filtros_activos)): ?>
+                    <small>(<?= implode(', ', $filtros_activos) ?>)</small>
+                <?php endif; ?>
+            </div>
+        </div>
     </div>
-<?php
-  }
-} else {
-  if (!empty($buscar) || !empty($estado_filtro) || !empty($fecha_filtro)) {
-    echo '<p style="text-align: center; color: #666; font-size: 1.2rem; margin: 2rem 0;">🔍 No se encontraron pedidos que coincidan con los filtros aplicados</p>';
-  } else {
-    echo '<p style="text-align: center;">🎉 No hay pedidos pendientes</p>';
-  }
-}
-?>
-</div>
+
+    <h2 class="text-center text-orange mb-4 fw-bold">
+        📋 Pedidos 
+        <?php 
+            if (!empty($estado_filtro)) {
+                echo ucfirst(str_replace('_', ' ', $estado_filtro));
+            } elseif (!empty($buscar) || !empty($fecha_filtro)) {
+                echo "coincidentes";
+            } else {
+                echo "pendientes";
+            }
+        ?>
+    </h2>
+
+    <?php if (!empty($mensaje)): ?>
+    <div class="row justify-content-center mb-4">
+        <div class="col-md-8">
+            <div class="alert alert-<?= $tipo_mensaje ?> alert-dismissible fade show shadow-sm" role="alert" id="mensaje">
+                <?= $mensaje ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onclick="cerrarMensaje()"></button>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 pedidos-container">
+    <?php
+    if ($resultadoPedidos && mysqli_num_rows($resultadoPedidos) > 0) {
+        while ($pedido = mysqli_fetch_assoc($resultadoPedidos)) {
+            // Determinamos color de borde según estado (opcional, mejora visual)
+            $bordeClase = 'border-warning'; 
+    ?>
+        <div class="col pedido-card"> 
+            <div class="card h-100 shadow-sm <?= $bordeClase ?> card-hover bg-orange-subtle">
+                <div class="card-header bg-warning bg-opacity-50 text-center fw-bold border-bottom border-warning">
+                    Pedido #<?= htmlspecialchars($pedido['numero_orden']) ?>
+                </div>
+                
+                <div class="card-body pedido-info text-dark">
+                    <p class="card-text mb-1"><strong>👤 Matrícula:</strong> <?= htmlspecialchars($pedido['matricula']) ?></p>
+                    <p class="card-text mb-1"><strong>📅 Fecha:</strong> <?= date('d/m/Y H:i', strtotime($pedido['fecha_hora_pedido'])) ?></p>
+                    <p class="card-text mb-1"><strong>🕒 Estado:</strong> <span class="badge bg-secondary"><?= ucfirst($pedido['estado_pedido']) ?></span></p>
+                    <p class="card-text mb-1"><strong>💰 Total:</strong> $<?= number_format($pedido['total'], 2) ?></p>
+                    <hr class="my-2 border-warning">
+                    <p class="card-text mb-1"><strong>🍽️ Productos:</strong> <?= htmlspecialchars($pedido['productos'] ?: 'Sin productos') ?></p>
+                    
+                    <?php if (!empty($pedido['notas_productos'])): ?>
+                        <p class="card-text mb-1 text-primary"><small><strong>📝 Notas prod:</strong> <?= htmlspecialchars($pedido['notas_productos']) ?></small></p>
+                    <?php endif; ?>
+                    
+                    <?php if (!empty($pedido['notas'])): ?>
+                        <div class="alert alert-warning p-2 mt-2 mb-0"><small><strong>📋 Notas:</strong> <?= htmlspecialchars($pedido['notas']) ?></small></div>
+                    <?php endif; ?>
+                    
+                    <?php if ($pedido['sancionado'] == 1): ?>
+                        <div class="alert alert-danger p-1 mt-2 text-center"><strong>⚠️ Sancionado</strong></div>
+                    <?php endif; ?>
+                </div>
+
+                <div class="card-footer bg-transparent border-0 pb-3">
+                    <form method="POST" class="d-grid gap-2 pedido-actions">
+                        <input type="hidden" name="id_pedido" value="<?= $pedido['id_pedido'] ?>">
+                        <select name="nuevo_estado" class="form-select form-select-sm border-success">
+                            <?php
+                            $estados = ['pendiente', 'en_preparacion', 'listo', 'entregado', 'cancelado'];
+                            foreach ($estados as $estado) {
+                                $selected = $pedido['estado_pedido'] === $estado ? 'selected' : '';
+                                echo "<option value=\"$estado\" $selected>" . ucfirst($estado) . "</option>";
+                            }
+                            ?>
+                        </select>
+                        <button type="submit" name="actualizar_estado" class="btn btn-success btn-sm">
+                            ✏️ Cambiar Estado
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    <?php
+        }
+    } else {
+    ?>
+        <div class="col-12 no-results-original">
+            <?php if (!empty($buscar) || !empty($estado_filtro) || !empty($fecha_filtro)) { ?>
+                <div class="alert alert-info text-center">🔍 No se encontraron pedidos que coincidan con los filtros aplicados</div>
+            <?php } else { ?>
+                <div class="alert alert-success text-center">🎉 No hay pedidos pendientes</div>
+            <?php } ?>
+        </div>
+    <?php
+    }
+    ?>
+    </div> </div> <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+// He conservado tu lógica JS original, solo adaptándola a las clases de Bootstrap cuando es necesario
+
 function cerrarMensaje() {
-  const mensaje = document.getElementById('mensaje');
-  if (mensaje) {
-    mensaje.style.opacity = '0';
-    mensaje.style.transform = 'translateY(-20px)';
-    setTimeout(() => {
-      mensaje.parentElement.remove();
-      if (window.history.replaceState) {
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
-    }, 300);
-  }
+    // Bootstrap ya maneja el cierre con data-bs-dismiss, pero mantenemos esto para el timer
+    const mensaje = document.getElementById('mensaje');
+    if (mensaje) {
+        // Usamos la instancia de alerta de Bootstrap para cerrarla suavemente si queremos forzarlo por JS
+        var bsAlert = new bootstrap.Alert(mensaje);
+        bsAlert.close();
+        
+        // Limpiar URL
+        if (window.history.replaceState) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -526,28 +287,39 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Búsqueda en tiempo real (con delay para evitar muchas peticiones)
   let searchTimeout;
-  searchInput.addEventListener('input', function() {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-      filtrarPedidos();
-    }, 500);
-  });
+  if(searchInput) {
+      searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+          filtrarPedidos();
+        }, 500);
+      });
+  }
   
   // Filtrado inmediato para selects
-  estadoSelect.addEventListener('change', filtrarPedidos);
-  fechaInput.addEventListener('change', filtrarPedidos);
+  if(estadoSelect) estadoSelect.addEventListener('change', filtrarPedidos);
+  if(fechaInput) fechaInput.addEventListener('change', filtrarPedidos);
   
   function filtrarPedidos() {
-    const searchTerm = searchInput.value.toLowerCase();
-    const estadoFiltro = estadoSelect.value;
-    const fechaFiltro = fechaInput.value;
+    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+    const estadoFiltro = estadoSelect ? estadoSelect.value : '';
+    const fechaFiltro = fechaInput ? fechaInput.value : '';
+    
+    // Seleccionamos los elementos que tienen la clase 'pedido-card' que está en la columna
     const pedidoCards = document.querySelectorAll('.pedido-card');
     let pedidosVisibles = 0;
     
     pedidoCards.forEach(card => {
+      // Buscamos dentro de la card el contenido de texto
       const textoCard = card.textContent.toLowerCase();
-      const estadoCard = card.querySelector('.pedido-info').textContent.match(/estado:\s*(\w+)/i);
-      const fechaCard = card.querySelector('.pedido-info').textContent.match(/fecha:\s*(\d{2}\/\d{2}\/\d{4})/);
+      
+      // Ajuste para buscar el estado dentro de las etiquetas badge o texto
+      // Buscamos la clase 'pedido-info' dentro de la columna actual
+      const infoDiv = card.querySelector('.pedido-info');
+      const infoText = infoDiv ? infoDiv.textContent : '';
+      
+      // Extracción simple basada en tu lógica anterior, pero adaptada a la estructura Bootstrap
+      // Como el texto está ahí, includes funciona bien.
       
       let mostrar = true;
       
@@ -556,21 +328,26 @@ document.addEventListener('DOMContentLoaded', function() {
         mostrar = false;
       }
       
-      // Filtrar por estado
-      if (estadoFiltro && estadoCard && estadoCard[1].toLowerCase().replace(' ', '_') !== estadoFiltro) {
-        mostrar = false;
+      // Filtrar por estado (buscamos si el valor del select está en el texto de la tarjeta)
+      if (estadoFiltro) {
+         // Normalizamos un poco para comparar
+         const estadoBusqueda = estadoFiltro.replace('_', ' ').toLowerCase();
+         if (!textoCard.includes(estadoBusqueda)) {
+             mostrar = false;
+         }
       }
       
-      // Filtrar por fecha
-      if (fechaFiltro && fechaCard) {
-        const fechaCardFormatted = fechaCard[1].split('/').reverse().join('-');
-        if (fechaCardFormatted !== fechaFiltro) {
-          mostrar = false;
+      // Filtrar por fecha (Buscamos el formato dd/mm/YYYY en la tarjeta)
+      if (fechaFiltro) {
+        const fechaFormateada = fechaFiltro.split('-').reverse().join('/'); // Convierte YYYY-MM-DD a DD/MM/YYYY
+        if (!textoCard.includes(fechaFormateada)) {
+             mostrar = false;
         }
       }
       
       if (mostrar) {
-        card.style.display = 'flex';
+        // En Bootstrap grid, usamos d-block o d-none en el contenedor de columna
+        card.style.display = 'block'; 
         pedidosVisibles++;
       } else {
         card.style.display = 'none';
@@ -582,13 +359,16 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Mostrar mensaje si no hay resultados
     const container = document.querySelector('.pedidos-container');
-    const noResults = container.querySelector('.no-results');
+    const noResults = container.querySelector('.no-results-js'); // Clase específica para el msg de JS
     
+    // Ocultamos el mensaje original de PHP si estamos filtrando con JS
+    const originalNoResults = container.querySelector('.no-results-original');
+    if(originalNoResults) originalNoResults.style.display = 'none';
+
     if (pedidosVisibles === 0 && !noResults) {
-      const noResultsMsg = document.createElement('p');
-      noResultsMsg.className = 'no-results';
-      noResultsMsg.style.cssText = 'text-align: center; color: #666; font-size: 1.2rem; margin: 2rem 0;';
-      noResultsMsg.innerHTML = '🔍 No se encontraron pedidos que coincidan con los filtros aplicados';
+      const noResultsMsg = document.createElement('div');
+      noResultsMsg.className = 'col-12 no-results-js';
+      noResultsMsg.innerHTML = '<div class="alert alert-warning text-center mt-3">🔍 No se encontraron pedidos que coincidan con los filtros aplicados</div>';
       container.appendChild(noResultsMsg);
     } else if (pedidosVisibles > 0 && noResults) {
       noResults.remove();
@@ -599,9 +379,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const statsDiv = document.querySelector('.search-stats');
     if (statsDiv) {
       const filtros = [];
-      if (searchInput.value) filtros.push(`búsqueda: '${searchInput.value}'`);
-      if (estadoSelect.value) filtros.push(`estado: ${estadoSelect.options[estadoSelect.selectedIndex].text}`);
-      if (fechaInput.value) filtros.push(`fecha: ${fechaInput.value}`);
+      if (searchInput && searchInput.value) filtros.push(`búsqueda: '${searchInput.value}'`);
+      if (estadoSelect && estadoSelect.value) filtros.push(`estado: ${estadoSelect.options[estadoSelect.selectedIndex].text}`);
+      if (fechaInput && fechaInput.value) filtros.push(`fecha: ${fechaInput.value}`);
       
       let statsText = `📊 Mostrando ${visible} pedido(s)`;
       if (filtros.length > 0) {
@@ -614,26 +394,28 @@ document.addEventListener('DOMContentLoaded', function() {
   // Limpiar búsqueda con tecla Escape
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
-      searchInput.value = '';
-      estadoSelect.value = '';
-      fechaInput.value = '';
+      if(searchInput) searchInput.value = '';
+      if(estadoSelect) estadoSelect.value = '';
+      if(fechaInput) fechaInput.value = '';
       filtrarPedidos();
     }
   });
   
-  // Auto-focus en el campo de búsqueda
-  searchInput.focus();
+  // Auto-focus
+  if(searchInput) searchInput.focus();
   
   // Atajos de teclado
   document.addEventListener('keydown', function(e) {
-    // Ctrl + F para enfocar búsqueda
+    // Ctrl + F
     if (e.ctrlKey && e.key === 'f') {
       e.preventDefault();
-      searchInput.focus();
-      searchInput.select();
+      if(searchInput) {
+          searchInput.focus();
+          searchInput.select();
+      }
     }
     
-    // Ctrl + R para limpiar filtros
+    // Ctrl + R
     if (e.ctrlKey && e.key === 'r') {
       e.preventDefault();
       window.location.href = 'paginaAdmin.php';
