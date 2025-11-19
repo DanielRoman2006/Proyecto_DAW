@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="col-sm-10 col-md-8 col-lg-5">
           <div class="card overflow-hidden">
             <div class="brand-banner">
-              <img src="imagenes/UpQroo.jpg" alt="UpQroo">
+              <img src="imagenes/2UPQROO.png" alt="UpQroo">
               <div>
                 <h5 class="mb-0">Iniciar sesión</h5>
                 <small>Politaste - Ingresa como administrador o usuario</small>
