@@ -57,6 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['rol'] = 'user';
         $_SESSION['matricula'] = $row['matricula'];
         $_SESSION['nombre'] = $row['nombre'];
+        
         header('Location: menu.php');
         exit;
       }

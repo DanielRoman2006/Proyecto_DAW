@@ -1,6 +1,12 @@
 <?php
+session_start();
 
-include 'encabezado.html';
+if (isset($_SESSION['usuario']) || isset($_SESSION['nombre'])) {
+    include 'encabezado_con_sesion.php';
+} else {
+    include 'encabezado_sin_sesion.php';
+}
+
 ?>
 
 <style>

@@ -1,6 +1,5 @@
 <?php
 require_once 'conexion.php';
-
 $sql = "SELECT r.calificación, r.comentario, r.fecha, IFNULL(u.nombre, 'Anónimo') AS nombre
         FROM reseñas r
         LEFT JOIN usuarios u ON u.matricula = r.matricula

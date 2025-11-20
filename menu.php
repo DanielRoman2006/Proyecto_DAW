@@ -1,263 +1,270 @@
 <?php
 include 'conexion.php';
+session_start();
+
+$usuario_autenticado = isset($_SESSION['usuario']) || isset($_SESSION['nombre']);
 
 $sql = "SELECT id_producto, nombre, descripcion, precio, imagen_url FROM productos WHERE disponible = 1";
 $resultado = $conn->query($sql);
 
-include 'encabezado.html';
+if ($usuario_autenticado) {
+    include 'encabezado_con_sesion.php';
+} else {
+    include 'encabezado_sin_sesion.php';
+}
 ?>
 
 <style>
-    main {
-        padding: 20px 40px;
-        max-width: 1200px;
-        margin: 0 auto;
-    }
+main {
+    padding: 20px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
 
-    .cards-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-        justify-content: center;
-        margin: 0 auto;
-        padding: 0 10px;
-        max-width: 1200px;
-    }
+.cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin: 0 auto;
+    padding: 0 10px;
+    max-width: 1200px;
+}
 
-    .card {
-        background-color: #fff3e0;
-        border-radius: 1rem;
-        width: 14rem;
-        padding: 1rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-        box-shadow: 0 4px 8px rgba(255,111,0,0.3);
-        transition: transform 0.3s ease;
-        color: #4a2c0f;
-        cursor: pointer; 
-    }
+.card {
+    background-color: #fff3e0;
+    border-radius: 1rem;
+    width: 14rem;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    box-shadow: 0 4px 8px rgba(255,111,0,0.3);
+    transition: transform 0.3s ease;
+    color: #4a2c0f;
+    cursor: pointer; 
+}
 
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 16px rgba(255,111,0,0.5);
-    }
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(255,111,0,0.5);
+}
 
-    .image_container {
-        background-color: #ffcc80;
-        border-radius: 0.5rem;
-        height: 8rem;
-        position: relative;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+.image_container {
+    background-color: #ffcc80;
+    border-radius: 0.5rem;
+    height: 8rem;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-    .image_container img {
-        max-height: 100%;
-        max-width: 100%;
-        object-fit: contain;
-        border-radius: 0.5rem;
-        transition: transform 0.3s ease;
-    }
+.image_container img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    border-radius: 0.5rem;
+    transition: transform 0.3s ease;
+}
 
-    .image_container:hover img {
-        transform: scale(1.05); 
-    }
+.image_container:hover img {
+    transform: scale(1.05); 
+}
 
-    .title {
-        font-size: 1.1rem;
-        font-weight: 600;
-        text-transform: capitalize;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
+.title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-transform: capitalize;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
-    .descripcion {
-        font-size: 0.9rem;
-        height: 3rem;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
+.descripcion {
+    font-size: 0.9rem;
+    height: 3rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
-    .price {
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: #bf360c;
-    }
+.price {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #bf360c;
+}
 
-    .cart-button {
-        cursor: pointer;
-        background: linear-gradient(0deg, #ff6f00 50%, #fff7f0 125%);
-        border-radius: 0.5rem;
-        border: 2px solid rgba(255,111,0,0.5);
-        box-shadow: inset 0 0 0.25rem 1px #4a2c0f;
-        color: #4a2c0f;
-        font-size: 0.8rem;
-        font-weight: 500;
-        padding: 0.5rem 1rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.3rem;
-        user-select: none;
-        transition: 0.3s;
-        position: relative; 
-        z-index: 10;
-    }
+.cart-button {
+    cursor: pointer;
+    background: linear-gradient(0deg, #ff6f00 50%, #fff7f0 125%);
+    border-radius: 0.5rem;
+    border: 2px solid rgba(255,111,0,0.5);
+    box-shadow: inset 0 0 0.25rem 1px #4a2c0f;
+    color: #4a2c0f;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    user-select: none;
+    transition: 0.3s;
+    position: relative; 
+    z-index: 10;
+}
 
-    .cart-button:hover {
-        background-color: #bf360c;
-        border-color: #bf360c;
-        color: white;
-    }
-    
-    .carrusel-img {
-        width: 100%;
-        height: 1000px;
-        object-fit: cover;
-        display: inline-block;
-    }
+.cart-button:hover {
+    background-color: #bf360c;
+    border-color: #bf360c;
+    color: white;
+}
 
-    .validation-modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.5);
-    }
+.carrusel-img {
+    width: 100%;
+    height: 1000px;
+    object-fit: cover;
+    display: inline-block;
+}
 
-    .validation-modal-content {
-        background-color: #fff3e0;
-        margin: 15% auto;
-        padding: 2rem;
-        border-radius: 1rem;
-        width: 90%;
-        max-width: 400px;
-        text-align: center;
-        box-shadow: 0 8px 32px rgba(255,111,0,0.3);
-        color: #4a2c0f;
-    }
+.validation-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
 
-    .validation-modal-close {
-        background: #ff6f00;
-        border: none;
-        border-radius: 0.5rem;
-        padding: 0.8rem 2rem;
-        color: white;
-        font-weight: 700;
-        cursor: pointer;
-        transition: background 0.3s;
-    }
+.validation-modal-content {
+    background-color: #fff3e0;
+    margin: 15% auto;
+    padding: 2rem;
+    border-radius: 1rem;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(255,111,0,0.3);
+    color: #4a2c0f;
+}
 
-    .validation-modal-close:hover {
-        background: #bf360c;
-    }
+.validation-modal-close, .validation-modal-action {
+    background: #ff6f00;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.8rem 1.5rem;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.3s;
+    margin: 0.5rem;
+}
 
-    #detalleModal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.7);
-        overflow: auto;
-    }
+.validation-modal-close:hover, .validation-modal-action:hover {
+    background: #bf360c;
+}
 
-    .detalle-modal-content {
-        background-color: #fff3e0;
-        margin: 5% auto;
-        padding: 2rem;
-        border-radius: 1rem;
-        width: 90%;
-        max-width: 600px;
-        box-shadow: 0 10px 40px rgba(255,111,0,0.5);
-        color: #4a2c0f;
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-        animation: fadeIn 0.3s ease-out;
-    }
+#detalleModal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    overflow: auto;
+}
 
-    .detalle-modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        border-bottom: 1px solid #ffcc80;
-        padding-bottom: 1rem;
-    }
+.detalle-modal-content {
+    background-color: #fff3e0;
+    margin: 5% auto;
+    padding: 2rem;
+    border-radius: 1rem;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 10px 40px rgba(255,111,0,0.5);
+    color: #4a2c0f;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    animation: fadeIn 0.3s ease-out;
+}
 
-    .detalle-modal-close {
-        color: #4a2c0f;
-        font-size: 2.5rem;
-        font-weight: bold;
-        cursor: pointer;
-        line-height: 1;
-        transition: color 0.2s;
-        padding: 0 0.5rem;
-    }
+.detalle-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid #ffcc80;
+    padding-bottom: 1rem;
+}
 
-    .detalle-modal-close:hover,
-    .detalle-modal-close:focus {
-        color: #bf360c;
-    }
+.detalle-modal-close {
+    color: #4a2c0f;
+    font-size: 2.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+    padding: 0 0.5rem;
+}
 
-    .detalle-modal-body {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
+.detalle-modal-close:hover,
+.detalle-modal-close:focus {
+    color: #bf360c;
+}
 
-    .detalle-modal-body img {
-        max-width: 100%;
-        height: auto;
-        max-height: 300px;
-        object-fit: contain;
-        border-radius: 0.75rem;
-        margin: 0 auto;
-        border: 3px solid #ffcc80;
-    }
+.detalle-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
 
-    .detalle-modal-price {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: #bf360c;
-    }
+.detalle-modal-body img {
+    max-width: 100%;
+    height: auto;
+    max-height: 300px;
+    object-fit: contain;
+    border-radius: 0.75rem;
+    margin: 0 auto;
+    border: 3px solid #ffcc80;
+}
 
-    .detalle-modal-title {
-        font-size: 1.8rem;
-        font-weight: 700;
-        text-transform: capitalize;
-        margin: 0;
-    }
+.detalle-modal-price {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #bf360c;
+}
 
-    .detalle-modal-descripcion {
-        font-size: 1.1rem;
-        line-height: 1.5;
-        text-align: justify;
-    }
+.detalle-modal-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    text-transform: capitalize;
+    margin: 0;
+}
 
-    .detalle-modal-footer {
-        text-align: center;
-        padding-top: 1rem;
-        border-top: 1px solid #ffcc80;
-    }
+.detalle-modal-descripcion {
+    font-size: 1.1rem;
+    line-height: 1.5;
+    text-align: justify;
+}
 
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(-20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
+.detalle-modal-footer {
+    text-align: center;
+    padding-top: 1rem;
+    border-top: 1px solid #ffcc80;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 </style>
 
 <main class="container">
-
 <div id="carouselExampleIndicators" class="carousel slide mb-4" data-bs-ride="carousel">
     <div class="carousel-indicators">
         <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active"></button>
@@ -300,22 +307,18 @@ if ($resultado->num_rows > 0) {
         $descripcion = htmlspecialchars($fila['descripcion'], ENT_QUOTES, 'UTF-8');
         $precio = number_format($fila['precio'], 2);
         $imagen_url = htmlspecialchars($fila['imagen_url'], ENT_QUOTES, 'UTF-8');
+        $id_producto = htmlspecialchars($fila['id_producto'], ENT_QUOTES, 'UTF-8');
 ?>
       <div class="col-6 col-sm-4 col-md-3 col-lg-2 d-flex justify-content-center">
         <div class="card" 
-             onclick="mostrarDetallesProducto('<?= $nombre ?>', '<?= $descripcion ?>', '<?= $precio ?>', '<?= $imagen_url ?>')">
-          
+             onclick="mostrarDetallesProducto('<?= $nombre ?>', '<?= $descripcion ?>', '<?= $precio ?>', '<?= $imagen_url ?>', '<?= $id_producto ?>')">
           <div class="image_container">
-            <img src="<?= $imagen_url ?>">
+            <img src="<?= $imagen_url ?>" alt="<?= $nombre ?>">
           </div>
-
           <div class="title"><?= $nombre ?></div>
-
           <div class="descripcion"><?= $descripcion ?></div>
-
           <div class="price">$<?= $precio ?></div>
-
-          <button class="cart-button" onclick="event.stopPropagation(); abrirAlertaSesion();">
+          <button class="cart-button" onclick="event.stopPropagation(); agregarACarrito(<?= $id_producto ?>);">
             Agregar
           </button>
         </div>
@@ -331,9 +334,20 @@ if ($resultado->num_rows > 0) {
 
 <div id="alertaSesion" class="validation-modal">
     <div class="validation-modal-content">
-        <h3>⚠️ Inicia Sesión</h3>
+        <h3>Inicia Sesión</h3>
         <p>Debes iniciar sesión para comprar productos.</p>
         <button class="validation-modal-close" onclick="cerrarAlertaSesion()">Cerrar</button>
+    </div>
+</div>
+
+<div id="alertaPedidoAgregado" class="validation-modal">
+    <div class="validation-modal-content">
+        <h3>¡Pedido Agregado!</h3>
+        <p>Tu producto se ha añadido a tu carrito de pedidos.</p>
+        <div class="d-flex justify-content-center mt-3">
+            <button class="validation-modal-close" onclick="cerrarAlertaPedidoAgregado()">Seguir Comprando</button>
+            <a href="#" class="validation-modal-action text-decoration-none">Ver Pedidos</a>
+        </div>
     </div>
 </div>
 
@@ -343,15 +357,13 @@ if ($resultado->num_rows > 0) {
             <h2 class="detalle-modal-title" id="detalle-nombre"></h2>
             <span class="detalle-modal-close" onclick="cerrarDetalleModal()">&times;</span>
         </div>
-        
         <div class="detalle-modal-body">
             <img id="detalle-imagen" src="" alt="Imagen del Producto">
             <p class="detalle-modal-descripcion" id="detalle-descripcion"></p>
             <p class="detalle-modal-price" id="detalle-precio"></p>
         </div>
-
         <div class="detalle-modal-footer">
-            <button class="cart-button" onclick="cerrarDetalleModal(); abrirAlertaSesion();">
+            <button class="cart-button" id="btn-agregar-detalle" onclick="manejarBotonAgregarDetalle()">
                 Agregar al Carrito
             </button>
         </div>
@@ -359,42 +371,65 @@ if ($resultado->num_rows > 0) {
 </div>
 
 <script>
+let productoSeleccionadoId = null; 
+const IS_AUTHENTICATED = <?= $usuario_autenticado ? 'true' : 'false' ?>;
 
 function abrirAlertaSesion() {
     document.getElementById("alertaSesion").style.display = "block";
 }
-
 function cerrarAlertaSesion() {
     document.getElementById("alertaSesion").style.display = "none";
 }
+function abrirAlertaPedidoAgregado() {
+    document.getElementById("alertaPedidoAgregado").style.display = "block";
+}
+function cerrarAlertaPedidoAgregado() {
+    document.getElementById("alertaPedidoAgregado").style.display = "none";
+}
+function cerrarDetalleModal() {
+    document.getElementById("detalleModal").style.display = "none";
+}
 
-
-function mostrarDetallesProducto(nombre, descripcion, precio, imagenUrl) {
+function mostrarDetallesProducto(nombre, descripcion, precio, imagenUrl, id_producto) {
     const modal = document.getElementById("detalleModal");
-    
     document.getElementById("detalle-nombre").textContent = nombre;
     document.getElementById("detalle-descripcion").textContent = descripcion;
     document.getElementById("detalle-precio").textContent = `$${precio}`; 
     document.getElementById("detalle-imagen").src = imagenUrl;
     document.getElementById("detalle-imagen").alt = "Imagen de " + nombre;
-
+    productoSeleccionadoId = id_producto;
     modal.style.display = "block";
 }
 
+function manejarBotonAgregarDetalle() {
+    cerrarDetalleModal();
+    if (productoSeleccionadoId) {
+        agregarACarrito(productoSeleccionadoId);
+    }
+}
 
-function cerrarDetalleModal() {
-    document.getElementById("detalleModal").style.display = "none";
+function agregarACarrito(id_producto) {
+    if (IS_AUTHENTICATED) {
+        console.log("Producto " + id_producto + " agregado al carrito.");
+        abrirAlertaPedidoAgregado();
+    } else {
+        abrirAlertaSesion();
+    }
 }
 
 window.onclick = function(event) {
     const detalleModal = document.getElementById("detalleModal");
-    const alertaModal = document.getElementById("alertaSesion");
+    const alertaSesionModal = document.getElementById("alertaSesion");
+    const alertaPedidoAgregadoModal = document.getElementById("alertaPedidoAgregado");
 
     if (event.target == detalleModal) {
         detalleModal.style.display = "none";
     }
-    if (event.target == alertaModal) {
-        alertaModal.style.display = "none";
+    if (event.target == alertaSesionModal) {
+        alertaSesionModal.style.display = "none";
+    }
+    if (event.target == alertaPedidoAgregadoModal) {
+        alertaPedidoAgregadoModal.style.display = "none";
     }
 }
 </script>

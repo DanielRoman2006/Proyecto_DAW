@@ -2,6 +2,7 @@
 session_start();
 require_once 'conexion.php';
 
+// Redirige si no hay sesión activa
 if (!isset($_SESSION['role'])) {
     header('Location: login.php');
     exit;
@@ -10,6 +11,9 @@ if (!isset($_SESSION['role'])) {
 $role = $_SESSION['role'];
 $info = [];
 
+// ----------------------------------------------------
+// Lógica de recuperación de información del perfil
+// ----------------------------------------------------
 if ($role === 'user' && isset($_SESSION['matricula'])) {
     $mat = $_SESSION['matricula'];
     $stmt = $conn->prepare('SELECT matricula, nombre, correo, fecha_registro FROM usuarios WHERE matricula = ? LIMIT 1');
@@ -29,24 +33,37 @@ if ($role === 'user' && isset($_SESSION['matricula'])) {
         $info = $res->fetch_assoc();
     }
 }
+
+// ----------------------------------------------------
+// INCLUSIÓN CONDICIONAL DEL ENCABEZADO
+// ----------------------------------------------------
+if ($role === 'admin') {
+    include 'encabezadoAdmin.php';
+} else {
+    // Si es 'user' u otro rol autenticado, usa el encabezado de sesión estándar
+    include 'encabezado_con_sesion.php';
+}
 ?>
-<?php include 'encabezado.html'; ?>
 
 <div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="card-title">Perfil</h4>
+                    <h4 class="card-title">Perfil de <?php echo htmlspecialchars($role === 'admin' ? 'Administrador' : 'Usuario'); ?></h4>
+                    
                     <?php if (empty($info)): ?>
-                        <div class="alert alert-warning">No se encontró información del perfil.</div>
+                        <div class="alert alert-warning">No se encontró información del perfil. Asegúrate de que el ID de sesión es correcto.</div>
                     <?php else: ?>
                         <table class="table">
                             <tbody>
                                 <?php foreach ($info as $key => $val): ?>
                                     <tr>
-                                        <th style="text-transform:capitalize; width:35%;"><?=htmlspecialchars($key)?></th>
-                                        <td><?=htmlspecialchars($val)?></td>
+                                        <th style="text-transform:capitalize; width:35%;">
+                                            <!-- Mejorar la presentación de la clave -->
+                                            <?= htmlspecialchars(str_replace('_', ' ', $key)) ?>
+                                        </th>
+                                        <td><?= htmlspecialchars($val) ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
