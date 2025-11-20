@@ -39,6 +39,8 @@ main {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    justify-content: space-between;
+    min-height: 22rem;
     box-shadow: 0 4px 8px rgba(255,111,0,0.3);
     transition: transform 0.3s ease;
     color: #4a2c0f;
@@ -120,6 +122,19 @@ main {
     border-color: #bf360c;
     color: white;
 }
+
+/* Modal action button (detail view) - visually distinct and slightly larger font */
+.modal-add-button {
+    background: linear-gradient(0deg, #ff6f00 60%, #fff7f0 100%);
+    border: 2px solid rgba(255,111,0,0.5);
+    color: #4a2c0f;
+    padding: 0.55rem 0.9rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+    border-radius: 0.6rem;
+    display: inline-block;
+}
+.modal-add-button:hover { background-color:#bf360c; color:white; }
 
 .carrusel-img {
     width: 100%;
@@ -318,9 +333,9 @@ if ($resultado->num_rows > 0) {
           <div class="title"><?= $nombre ?></div>
           <div class="descripcion"><?= $descripcion ?></div>
           <div class="price">$<?= $precio ?></div>
-          <button class="cart-button" onclick="event.stopPropagation(); agregarACarrito(<?= $id_producto ?>);">
-            Agregar
-          </button>
+                    <button class="cart-button" onclick="event.stopPropagation(); addToCart(<?= $id_producto ?>);" aria-label="Agregar al carrito" title="Agregar al carrito">
+                        Agregar
+                    </button>
         </div>
       </div>
 <?php
@@ -346,7 +361,7 @@ if ($resultado->num_rows > 0) {
         <p>Tu producto se ha añadido a tu carrito de pedidos.</p>
         <div class="d-flex justify-content-center mt-3">
             <button class="validation-modal-close" onclick="cerrarAlertaPedidoAgregado()">Seguir Comprando</button>
-            <a href="#" class="validation-modal-action text-decoration-none">Ver Pedidos</a>
+            <a href="carrito.php" class="validation-modal-action text-decoration-none">Ver Pedidos</a>
         </div>
     </div>
 </div>
@@ -363,7 +378,7 @@ if ($resultado->num_rows > 0) {
             <p class="detalle-modal-price" id="detalle-precio"></p>
         </div>
         <div class="detalle-modal-footer">
-            <button class="cart-button" id="btn-agregar-detalle" onclick="manejarBotonAgregarDetalle()">
+            <button class="modal-add-button" id="btn-agregar-detalle" onclick="manejarBotonAgregarDetalle()">
                 Agregar al Carrito
             </button>
         </div>
@@ -409,12 +424,42 @@ function manejarBotonAgregarDetalle() {
 }
 
 function agregarACarrito(id_producto) {
-    if (IS_AUTHENTICATED) {
-        console.log("Producto " + id_producto + " agregado al carrito.");
-        abrirAlertaPedidoAgregado();
-    } else {
+    if (!IS_AUTHENTICATED) {
         abrirAlertaSesion();
+        return;
     }
+
+    // Send product to cart API (minimal change)
+    const formData = new URLSearchParams();
+    formData.append('action', 'add');
+    formData.append('product_id', id_producto);
+    formData.append('qty', 1);
+
+    fetch('cart_api.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+        body: formData.toString()
+    }).then(resp => resp.json())
+    .then(data => {
+        if (data && data.success) {
+            console.log('Added to cart, new count:', data.cart_count);
+            abrirAlertaPedidoAgregado();
+            // Optional: update cart badge if exists
+            const badge = document.getElementById('cart-count-badge');
+            if (badge && typeof data.cart_count !== 'undefined') badge.textContent = data.cart_count;
+        } else {
+            console.error('Cart API error', data);
+            alert(data && data.message ? ('Error: ' + data.message) : 'Error al agregar al carrito');
+        }
+    }).catch(err => {
+        console.error('Fetch error', err);
+        alert('Error al agregar al carrito');
+    });
+}
+
+// If other buttons call addToCart, alias it to our function so both work
+function addToCart(id_producto) {
+    agregarACarrito(id_producto);
 }
 
 window.onclick = function(event) {
