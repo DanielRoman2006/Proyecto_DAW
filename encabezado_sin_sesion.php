@@ -183,10 +183,12 @@ document.addEventListener('DOMContentLoaded', function(){
         if (!list) return;
         list.innerHTML = 'Cargando reseñas...';
 
-        fetch('mostrar_resenas.php', { method: 'GET', credentials: 'same-origin' })
-            .then(function(resp){ return resp.text(); })
+        var resenaUrl = '/Proyecto_DAW/mostrar_resena.php';
+        console.log('Fetching reseñas from', resenaUrl);
+        fetch(resenaUrl, { method: 'GET', credentials: 'same-origin' })
+            .then(function(resp){ if (!resp.ok) throw new Error('HTTP ' + resp.status); return resp.text(); })
             .then(function(html){ list.innerHTML = html; })
-            .catch(function(){ list.innerHTML = '<div class="text-muted">Error cargando reseñas.</div>'; });
+            .catch(function(err){ console.error('Error cargando reseñas:', err); list.innerHTML = '<div class="text-muted">Error cargando reseñas.</div>'; });
     });
 });
 </script>
