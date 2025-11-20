@@ -75,7 +75,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			font-size: 30px;
 		}
 
-		button {
+		.button-row {
+			display: flex;
+			gap: 10px;
+			margin-top: 15px;
+		}
+
+		.btn-custom {
 			background-color: #e67e22;
 			color: white;
 			padding: 10px 18px;
@@ -83,12 +89,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			border-radius: 6px;
 			font-size: 16px;
 			cursor: pointer;
-			margin-top: 15px;
 			transition: background 0.3s ease;
 		}
 
-		button:hover {
-			background-color: #ca6b1e;
+		.btn-custom:hover { background-color: #ca6b1e; }
+
+		.btn-outline-custom {
+			background-color: transparent;
+			color: #e67e22;
+			padding: 10px 18px;
+			border: 2px solid #e67e22;
+			border-radius: 6px;
+			font-size: 16px;
+			cursor: pointer;
+			transition: background 0.3s ease, color 0.3s ease;
+		}
+
+		.btn-outline-custom:hover {
+			background-color: #e67e22;
+			color: #fff;
 		}
 
 		.mensaje {
@@ -105,13 +124,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		<h1>Alta de nuevo usuario</h1>
 
 		<form method="POST" class="needs-validation" novalidate>
-			<input type="text" name="matricula" placeholder="Matrícula" required>
-			<input type="text" name="nombre" placeholder="Nombre completo" required>
-			<input type="email" name="correo" placeholder="Correo institucional" required>
-			<input type="password" name="contraseña" placeholder="Contraseña" required>
+			<div class="mb-3">
+				<input type="text" name="matricula" class="form-control" placeholder="Matrícula" required>
+			</div>
+			<div class="mb-3">
+				<input type="text" name="nombre" class="form-control" placeholder="Nombre completo" required>
+			</div>
+			<div class="mb-3">
+				<input type="email" name="correo" class="form-control" placeholder="Correo institucional" required>
+			</div>
+			<div class="mb-3">
+				<input type="password" name="contraseña" class="form-control" placeholder="Contraseña" required>
+			</div>
 
-			<button type="submit">Registrar</button>
-			<button type="button" onclick="window.location.href='paginaAdmin.php'">Regresar</button>
+			<div class="button-row">
+				<button type="submit" class="btn-custom flex-fill">Registrar</button>
+				<button type="button" class="btn-outline-custom flex-fill" onclick="window.location.href='paginaAdmin.php'">Regresar</button>
+			</div>
 		</form>
 
 		<?php if (isset($mensaje)) echo "<div class='mensaje'>$mensaje</div>"; ?>
