@@ -69,7 +69,7 @@ require_once 'conexion.php';
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-white" href="#sobre" style="display:flex; flex-direction:column; align-items:center;">
+                    <a class="nav-link text-white" href="sobre_nosotros.php" style="display:flex; flex-direction:column; align-items:center;">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="white" style="margin-bottom:2px;">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2Zm1 15h-2v-6h2v6Zm0-8h-2V7h2v2Z"/>
                         </svg>
@@ -77,7 +77,7 @@ require_once 'conexion.php';
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link text-white" href="#privacidad" style="display:flex; flex-direction:column; align-items:center;">
+                    <a class="nav-link text-white" href="aviso_de_privacidad.php" style="display:flex; flex-direction:column; align-items:center;">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="white" style="margin-bottom:2px;">
                             <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6Zm-1 15h-2v-2h2v2Zm0-4h-2V8h2v5Z"/>
                         </svg>
@@ -104,20 +104,6 @@ require_once 'conexion.php';
     <h2 id="menu" class="section-title">Menú</h2>
     <div class="row" id="menuContent">
         <div class="col-12 text-center text-muted">Cargando...</div>
-    </div>
-
-    <h2 id="sobre" class="section-title">Sobre Nosotros</h2>
-    <div class="card" style="box-shadow:0 2px 8px rgba(0,0,0,0.1);">
-        <div class="card-body">
-            <p>Politaste Hub es una plataforma de gestión de pedidos diseñada para facilitar tu experiencia gastronómica. Nuestro equipo se dedica a proporcionarte el mejor servicio y calidad en cada orden que realices.</p>
-        </div>
-    </div>
-
-    <h2 id="privacidad" class="section-title">Aviso de Privacidad</h2>
-    <div class="card" style="box-shadow:0 2px 8px rgba(0,0,0,0.1);">
-        <div class="card-body">
-            <p>Politaste Hub respeta tu privacidad. Toda la información que proporciones es tratada de manera confidencial y conforme a las leyes de protección de datos aplicables. No compartimos tu información personal sin tu consentimiento.</p>
-        </div>
     </div>
 
     <h2 id="resenas" class="section-title">Reseñas</h2>
