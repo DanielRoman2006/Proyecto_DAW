@@ -24,7 +24,6 @@ switch ($action) {
         $product_id = intval($_POST['product_id'] ?? 0);
         $qty = intval($_POST['qty'] ?? 1);
         if ($product_id <= 0 || $qty <= 0) { echo json_encode(['success'=>false,'message'=>'Invalid params']); exit; }
-        // check product exists and available
         $stmt = $conn->prepare('SELECT id_producto, precio FROM productos WHERE id_producto = ? AND disponible = 1');
         $stmt->bind_param('i', $product_id);
         $stmt->execute();
@@ -56,7 +55,6 @@ switch ($action) {
         echo json_encode(['success'=>true,'cart_count'=>cart_qty_total()]);
         exit;
     case 'list':
-        // return full cart with product details
         $cart = $_SESSION['cart'];
         if (empty($cart)) { echo json_encode(['success'=>true, 'items'=>[], 'cart_count'=>0]); exit; }
         $ids = array_keys($cart);

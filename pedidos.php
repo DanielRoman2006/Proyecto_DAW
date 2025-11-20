@@ -2,7 +2,6 @@
 session_start();
 require_once 'conexion.php';
 
-// require login
 if (!isset($_SESSION['role']) || !isset($_SESSION['matricula'])) {
     header('Location: login.php');
     exit;
@@ -11,7 +10,6 @@ if (!isset($_SESSION['role']) || !isset($_SESSION['matricula'])) {
 $role = $_SESSION['role'];
 $matricula = $_SESSION['matricula'];
 
-// Build query depending on role
 if ($role === 'admin') {
     $sql = "SELECT id_pedido, numero_orden, matricula, fecha_hora_pedido, estado_pedido, total FROM pedidos ORDER BY fecha_hora_pedido DESC";
 } else {
@@ -83,7 +81,6 @@ function toggleDetails(id) {
     const contentDiv = document.getElementById('detail-' + id);
     if (!detailsRow) return;
     if (detailsRow.style.display === 'none' || detailsRow.style.display === '') {
-        // show and load details
         detailsRow.style.display = '';
         if (contentDiv && contentDiv.textContent.trim() === 'Cargando...') {
             fetch('pedido_detalle_api.php?id=' + id)

@@ -3,7 +3,6 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Aceptar tanto la clave 'rol' (es) como 'role' (en) para compatibilidad.
 $userRole = $_SESSION['rol'] ?? $_SESSION['role'] ?? null;
 if ($userRole !== 'admin') {
     header("Location: login.php");
@@ -41,12 +40,11 @@ if ($userRole !== 'admin') {
             padding: 2px;
         }
 
-        /* --- ESTILOS DE ESCRITORIO (Por defecto) --- */
         .navbar-nav .nav-link {
             color: white !important;
             font-size: 0.85rem;
             display: flex;
-            flex-direction: column; /* Icono arriba, texto abajo */
+            flex-direction: column;
             align-items: center;
             transition: all 0.2s ease;
             padding: 0.5rem 1rem;
@@ -61,7 +59,7 @@ if ($userRole !== 'admin') {
         .nav-icon {
             width: 24px;
             height: 24px;
-            margin-bottom: 4px; /* Espacio entre icono y texto en escritorio */
+            margin-bottom: 4px;
             transition: transform 0.2s;
         }
 
@@ -74,42 +72,40 @@ if ($userRole !== 'admin') {
             box-shadow: 0 -2px 5px rgba(255,111,0,0.4);
         }
 
-        /* --- ESTILOS PARA MÓVIL (Cuando el menú se colapsa) --- */
-        /* Bootstrap 'lg' colapsa en 991px, así que usamos ese punto de quiebre */
         @media (max-width: 991px) {
             .navbar-collapse {
-                background-color: #e65100; /* Un tono ligeramente más oscuro para el menú desplegado */
+                background-color: #e65100;
                 margin-top: 10px;
-                border-radius: 0 0 10px 10px; /* Bordes redondeados abajo */
+                border-radius: 0 0 10px 10px;
                 padding: 10px 0;
                 box-shadow: inset 0 5px 10px rgba(0,0,0,0.1);
             }
 
             .navbar-nav .nav-link {
-                flex-direction: row; /* Pone el icono AL LADO del texto */
+                flex-direction: row;
                 align-items: center;
-                justify-content: flex-start; /* Alinea todo a la izquierda */
-                padding: 12px 25px; /* Más espacio para el dedo */
-                font-size: 1rem; /* Letra un poco más grande en móvil */
-                border-radius: 0; /* Quita bordes redondeados individuales */
-                border-left: 4px solid transparent; /* Preparación para hover */
+                justify-content: flex-start;
+                padding: 12px 25px;
+                font-size: 1rem;
+                border-radius: 0;
+                border-left: 4px solid transparent;
                 width: 100%;
             }
 
             .navbar-nav .nav-link:hover {
                 background-color: rgba(255, 255, 255, 0.1);
-                transform: none; /* Quita el efecto de salto */
-                border-left: 4px solid white; /* Indicador visual a la izquierda */
+                transform: none;
+                border-left: 4px solid white; 
             }
 
             .nav-icon {
-                margin-bottom: 0; /* Quita margen inferior */
-                margin-right: 15px; /* Añade margen derecho para separar del texto */
+                margin-bottom: 0; 
+                margin-right: 15px; 
                 width: 22px;
                 height: 22px;
             }
             
-            /* Opcional: Líneas divisorias sutiles entre opciones */
+            
             .nav-item {
                 border-bottom: 1px solid rgba(255,255,255,0.05);
             }

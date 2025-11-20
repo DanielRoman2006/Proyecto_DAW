@@ -2,7 +2,6 @@
 session_start();
 require_once 'conexion.php';
 
-// Require login
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user' || !isset($_SESSION['matricula'])) {
     header('Location: login.php');
     exit;
@@ -32,7 +31,6 @@ while ($row = $res->fetch_assoc()) {
     $total += $sub;
 }
 
-// Insert pedido
 $numero_orden = strtoupper(uniqid('ORD'));
 $stmt = $conn->prepare('INSERT INTO pedidos (numero_orden, matricula, estado_pedido, total) VALUES (?, ?, ?, ?)');
 $estado = 'pendiente';
@@ -49,7 +47,6 @@ foreach ($items as $pid=>$d) {
     $stmt2->execute();
 }
 
-// clear cart
 unset($_SESSION['cart']);
 
 header('Location: pedidos.php?created=1');

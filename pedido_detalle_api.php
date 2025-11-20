@@ -12,7 +12,6 @@ if (!isset($_SESSION['role']) || !isset($_SESSION['matricula'])) {
 $id = intval($_GET['id'] ?? 0);
 if ($id <= 0) { echo json_encode(['success'=>false,'message'=>'Invalid id']); exit; }
 
-// Check access: admin sees all, users only their own orders
 $role = $_SESSION['role'];
 if ($role !== 'admin') {
     $stmtChk = $conn->prepare('SELECT matricula FROM pedidos WHERE id_pedido = ?');

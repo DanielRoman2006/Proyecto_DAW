@@ -2,7 +2,6 @@
 session_start();
 require_once 'conexion.php';
 
-// Require user login to view cart
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'user' || !isset($_SESSION['matricula'])) {
     header('Location: login.php');
     exit;

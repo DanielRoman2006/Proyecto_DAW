@@ -429,7 +429,6 @@ function agregarACarrito(id_producto) {
         return;
     }
 
-    // Send product to cart API (minimal change)
     const formData = new URLSearchParams();
     formData.append('action', 'add');
     formData.append('product_id', id_producto);
@@ -444,7 +443,7 @@ function agregarACarrito(id_producto) {
         if (data && data.success) {
             console.log('Added to cart, new count:', data.cart_count);
             abrirAlertaPedidoAgregado();
-            // Optional: update cart badge if exists
+
             const badge = document.getElementById('cart-count-badge');
             if (badge && typeof data.cart_count !== 'undefined') badge.textContent = data.cart_count;
         } else {
@@ -457,7 +456,6 @@ function agregarACarrito(id_producto) {
     });
 }
 
-// If other buttons call addToCart, alias it to our function so both work
 function addToCart(id_producto) {
     agregarACarrito(id_producto);
 }

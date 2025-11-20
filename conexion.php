@@ -9,11 +9,6 @@ if ($conn->connect_error) {
     die("Conexión fallida: " . $conn->connect_error);
 }
 
-/**
- * Devuelve el nombre de la columna de contraseña para una tabla dada.
- * Busca por orden preferente: 'contraseña', 'contrasena', 'password', 'pass', 'clave'.
- * Retorna el nombre de la columna si existe, o null si no se encuentra.
- */
 function getPasswordColumn($conn, $tableName) {
     $candidates = ['contraseña', 'contrasena', 'password', 'pass', 'clave'];
     foreach ($candidates as $c) {

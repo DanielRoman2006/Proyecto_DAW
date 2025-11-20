@@ -2,18 +2,17 @@
 session_start();
 include 'conexion.php';
 if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'admin') {
-    echo "<p style='color:red; text-align:center;'>⛔ Acceso denegado. Solo administradores.</p>";
+    echo "<p class='text-danger text-center mt-3'><i class='bi bi-x-octagon-fill'></i> Acceso denegado. Solo administradores.</p>";
     exit();
 }
 
-// Procesar acciones
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['cambiar_disponibilidad'])) {
         $id_producto = mysqli_real_escape_string($conn, $_POST['id_producto']);
         $nueva_disponibilidad = mysqli_real_escape_string($conn, $_POST['nueva_disponibilidad']);
-        
+
         $updateQuery = "UPDATE productos SET disponible = '$nueva_disponibilidad' WHERE id_producto = '$id_producto'";
-        
+
         if (mysqli_query($conn, $updateQuery)) {
             $mensaje = $nueva_disponibilidad == 1 ? "activado" : "desactivado";
             header("Location: gestionarProductos.php?success=disponibilidad&estado=$mensaje");
@@ -23,12 +22,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         }
     }
-    
+
     if (isset($_POST['eliminar_producto'])) {
         $id_producto = mysqli_real_escape_string($conn, $_POST['id_producto']);
-        
+
         $deleteQuery = "DELETE FROM productos WHERE id_producto = '$id_producto'";
-        
+
         if (mysqli_query($conn, $deleteQuery)) {
             header("Location: gestionarProductos.php?success=eliminado");
             exit();
@@ -37,33 +36,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         }
     }
-    
+
     if (isset($_POST['actualizar_producto'])) {
         $id_producto = mysqli_real_escape_string($conn, $_POST['id_producto']);
         $nombre = mysqli_real_escape_string($conn, $_POST['nombre']);
         $descripcion = mysqli_real_escape_string($conn, $_POST['descripcion']);
         $precio = mysqli_real_escape_string($conn, $_POST['precio']);
-        
+
         $imagen_url = '';
-        
-        // Determinar si es archivo subido o URL
+
         if ($_POST['tipo_imagen_edit'] === 'subir' && isset($_FILES['imagen_archivo_edit']) && $_FILES['imagen_archivo_edit']['error'] === 0) {
-            // Procesar archivo subido
             $archivo = $_FILES['imagen_archivo_edit'];
-            
-            // Validar tipo de archivo
+
             $tiposPermitidos = ['image/jpeg', 'image/png', 'image/gif'];
             if (in_array($archivo['type'], $tiposPermitidos)) {
-                
-                // Validar tamaño (máximo 5MB)
+
                 if ($archivo['size'] <= 5 * 1024 * 1024) {
-                    
-                    // Generar nombre único para evitar conflictos
+
                     $extension = pathinfo($archivo['name'], PATHINFO_EXTENSION);
                     $nombreArchivo = 'producto_' . time() . '_' . rand(1000, 9999) . '.' . $extension;
                     $rutaDestino = 'imagenes/' . $nombreArchivo;
-                    
-                    // Mover archivo a la carpeta imagenes
+
                     if (move_uploaded_file($archivo['tmp_name'], $rutaDestino)) {
                         $imagen_url = $rutaDestino;
                     } else {
@@ -79,17 +72,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit();
             }
         } else {
-            // Usar URL proporcionada
             $imagen_url = mysqli_real_escape_string($conn, $_POST['imagen_url']);
         }
-        
-        $updateQuery = "UPDATE productos SET 
-                        nombre = '$nombre', 
-                        descripcion = '$descripcion', 
-                        precio = '$precio', 
-                        imagen_url = '$imagen_url' 
-                        WHERE id_producto = '$id_producto'";
-        
+
+        $updateQuery = "UPDATE productos SET
+                                 nombre = '$nombre',
+                                 descripcion = '$descripcion',
+                                 precio = '$precio',
+                                 imagen_url = '$imagen_url'
+                                 WHERE id_producto = '$id_producto'";
+
         if (mysqli_query($conn, $updateQuery)) {
             header("Location: gestionarProductos.php?success=actualizado");
             exit();
@@ -100,11 +92,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Consulta para obtener todos los productos
 $queryProductos = "SELECT * FROM productos ORDER BY nombre ASC";
 $resultadoProductos = mysqli_query($conn, $queryProductos);
 
-// Procesar mensajes de confirmación
 $mensaje = '';
 $tipo_mensaje = '';
 
@@ -113,43 +103,43 @@ if (isset($_GET['success'])) {
     switch ($_GET['success']) {
         case 'disponibilidad':
             $estado = isset($_GET['estado']) ? $_GET['estado'] : 'actualizado';
-            $mensaje = "✅ Producto $estado correctamente";
+            $mensaje = "<i class='bi bi-check-circle-fill'></i> Producto $estado correctamente";
             break;
         case 'eliminado':
-            $mensaje = "✅ Producto eliminado correctamente";
+            $mensaje = "<i class='bi bi-check-circle-fill'></i> Producto eliminado correctamente";
             break;
         case 'actualizado':
-            $mensaje = "✅ Producto actualizado correctamente";
+            $mensaje = "<i class='bi bi-check-circle-fill'></i> Producto actualizado correctamente";
             break;
         case 'agregado':
-            $mensaje = "✅ Producto agregado correctamente";
+            $mensaje = "<i class='bi bi-check-circle-fill'></i> Producto agregado correctamente";
             break;
     }
 }
 
 if (isset($_GET['error'])) {
-    $tipo_mensaje = 'error';
+    $tipo_mensaje = 'danger';
     switch ($_GET['error']) {
         case 'disponibilidad':
-            $mensaje = "❌ Error al cambiar la disponibilidad del producto";
+            $mensaje = "<i class='bi bi-x-circle-fill'></i> Error al cambiar la disponibilidad del producto";
             break;
         case 'eliminar':
-            $mensaje = "❌ Error al eliminar producto. Puede que esté en uso";
+            $mensaje = "<i class='bi bi-x-circle-fill'></i> Error al eliminar producto. Puede que esté en uso";
             break;
         case 'actualizar':
-            $mensaje = "❌ Error al actualizar el producto";
+            $mensaje = "<i class='bi bi-x-circle-fill'></i> Error al actualizar el producto";
             break;
         case 'subir_archivo':
-            $mensaje = "❌ Error al subir el archivo de imagen";
+            $mensaje = "<i class='bi bi-x-circle-fill'></i> Error al subir el archivo de imagen";
             break;
         case 'formato_archivo':
-            $mensaje = "❌ Formato de archivo no válido. Solo JPG, PNG, GIF";
+            $mensaje = "<i class='bi bi-x-circle-fill'></i> Formato de archivo no válido. Solo JPG, PNG, GIF";
             break;
         case 'archivo_grande':
-            $mensaje = "❌ El archivo es demasiado grande. Máximo 5MB";
+            $mensaje = "<i class='bi bi-x-circle-fill'></i> El archivo es demasiado grande. Máximo 5MB";
             break;
         case 'agregar':
-            $mensaje = "❌ Error al agregar el producto";
+            $mensaje = "<i class='bi bi-x-circle-fill'></i> Error al agregar el producto";
             break;
     }
 }
@@ -163,471 +153,218 @@ if (isset($_GET['error'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestionar Productos - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="estilo.css">
     <style>
-        /* Estilos para las cartas de productos - mismo estilo que menu.php */
-        .productos-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
-            margin: 2rem auto;
-            max-width: 1200px;
-        }
-
-        .producto-card {
+        .card-producto-custom {
             background-color: #fff3e0;
-            border-radius: 1rem;
-            width: 18rem;
-            padding: 1rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            box-shadow: 0 4px 8px rgba(255,111,0,0.3);
             transition: transform 0.3s ease;
             color: #4a2c0f;
+            border-color: #ffcc80;
         }
-
-        .producto-card:hover {
+        .card-producto-custom:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(255,111,0,0.5);
+            box-shadow: 0 8px 16px rgba(255,111,0,0.5) !important;
         }
-
-        .producto-card.no-disponible {
+        .card-producto-custom.no-disponible {
             opacity: 0.6;
             background-color: #f5f5f5;
         }
-
-        .image_container {
+        .img-container-custom {
             background-color: #ffcc80;
-            border-radius: 0.5rem;
-            height: 8rem;
+            height: 10rem;
             position: relative;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-
-        .image_container img {
+        .img-container-custom img {
             max-height: 100%;
             max-width: 100%;
             object-fit: contain;
             border-radius: 0.5rem;
         }
-
-        .producto-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .estado-badge {
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.25rem;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .disponible {
-            background-color: #4caf50;
-            color: white;
-        }
-
-        .no-disponible-badge {
-            background-color: #f44336;
-            color: white;
-        }
-
-        .producto-info {
-            flex-grow: 1;
-        }
-
-        .title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .descripcion {
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 0.5rem;
-        }
-
-        .price {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #bf360c;
-        }
-
-        .producto-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            margin-top: auto;
-        }
-
-        .btn-row {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 0.5rem;
-            border: none;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .btn-editar {
-            background-color: #2196F3;
-            color: white;
-        }
-
-        .btn-editar:hover {
-            background-color: #1976D2;
-        }
-
-        .btn-activar {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        .btn-activar:hover {
-            background-color: #45a049;
-        }
-
-        .btn-desactivar {
-            background-color: #FF9800;
-            color: white;
-        }
-
-        .btn-desactivar:hover {
-            background-color: #f57c00;
-        }
-
-        .btn-eliminar {
-            background-color: #f44336;
-            color: white;
-        }
-
-        .btn-eliminar:hover {
-            background-color: #d32f2f;
-        }
-
-        .btn-agregar {
-            background-color: #4CAF50;
-            color: white;
-            padding: 1rem 2rem;
-            border: none;
-            border-radius: 0.5rem;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            margin: 2rem auto;
-            display: block;
-            transition: all 0.3s ease;
-        }
-
-        .btn-agregar:hover {
-            background-color: #45a049;
-            transform: translateY(-2px);
-        }
-
         .section-title {
-            text-align: center;
             color: #bf360c;
-            margin: 2rem 0 1rem 0;
-            font-size: 1.8rem;
         }
-
-        .controls-section {
-            text-align: center;
-            margin: 2rem 0;
-        }
-
-        /* Modal para editar */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-        }
-
-        .modal-content {
+        #editModal .modal-content {
             background-color: #fff3e0;
-            margin: 5% auto;
-            padding: 2rem;
-            border-radius: 1rem;
-            width: 90%;
-            max-width: 500px;
-        }
-
-        .modal input, .modal textarea {
-            width: 100%;
-            padding: 0.75rem;
-            margin: 0.5rem 0;
-            border: 1px solid #ddd;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: flex-end;
-            margin-top: 1rem;
-        }
-
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .close:hover {
-            color: #000;
-        }
-
-        /* Estilos para mensajes de confirmación */
-        .mensaje-container {
-            max-width: 600px;
-            margin: 1rem auto;
-            padding: 0 1rem;
-        }
-
-        .mensaje {
-            padding: 1rem 1.5rem;
-            border-radius: 0.5rem;
-            margin-bottom: 1rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            animation: slideDown 0.3s ease-out;
-        }
-
-        .mensaje.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .mensaje.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .mensaje-close {
-            margin-left: auto;
-            cursor: pointer;
-            font-size: 1.2rem;
-            opacity: 0.7;
-        }
-
-        .mensaje-close:hover {
-            opacity: 1;
         }
     </style>
 </head>
 <body>
-    <div class="controls-section">
-         <a href="paginaAdmin.php">
-        <button class="btn-regresar">🏠 Volver al Panel Admin</button>
-    </a>
-        <h1 class="section-title">🛍️ Gestión de Productos</h1>
-        <!-- Botón para agregar productos -->
-        <a href="agregarProducto.php">
-            <button class="btn-agregar">
-                ➕ Agregar Nuevo Producto
-            </button>
-        </a>
-    </div>
-
-    <!-- Mensajes de confirmación -->
-    <?php if (!empty($mensaje)): ?>
-    <div class="mensaje-container">
-        <div class="mensaje <?= $tipo_mensaje ?>" id="mensaje">
-            <span><?= $mensaje ?></span>
-            <span class="mensaje-close" onclick="cerrarMensaje()">&times;</span>
+    <div class="container mt-4">
+        <div class="controls-section text-center mb-5">
+             <a href="paginaAdmin.php" class="btn btn-warning mb-3">
+                <i class="bi bi-house-door-fill"></i> Volver al Panel Admin
+            </a>
+            <h1 class="section-title fw-bold"><i class="bi bi-bag-fill"></i> Gestión de Productos</h1>
+            <a href="agregarProducto.php" class="btn btn-success btn-lg shadow-sm">
+                <i class="bi bi-plus-circle-fill"></i> Agregar Nuevo Producto
+            </a>
         </div>
-    </div>
-    <?php endif; ?>
 
-    <div class="productos-container">
-        <?php
-        if ($resultadoProductos && mysqli_num_rows($resultadoProductos) > 0) {
-            while ($producto = mysqli_fetch_assoc($resultadoProductos)) {
-                $disponible = $producto['disponible'] == 1;
-                ?>
-                <div class="producto-card <?= !$disponible ? 'no-disponible' : '' ?>">
-                    <div class="producto-header">
-                        <span class="estado-badge <?= $disponible ? 'disponible' : 'no-disponible-badge' ?>">
-                            <?= $disponible ? '✅ Disponible' : '❌ No Disponible' ?>
-                        </span>
-                    </div>
-                    
-                    <div class="image_container">
-                        <?php
-                        // Corregir ruta de imagen si tiene el formato antiguo
-                        $imagen_corregida = str_replace('/politastehub/imagenes/', 'imagenes/', $producto['imagen_url']);
-                        ?>
-                        <img src="<?= htmlspecialchars($imagen_corregida) ?>" 
-                             alt="<?= htmlspecialchars($producto['nombre']) ?>" 
-                             onerror="this.src='imagenes/placeholder.png'; this.onerror=null;" />
-                    </div>
-                    
-                    <div class="producto-info">
-                        <div class="title"><?= htmlspecialchars($producto['nombre']) ?></div>
-                        <div class="descripcion"><?= htmlspecialchars($producto['descripcion']) ?></div>
-                        <div class="price">$<?= number_format($producto['precio'], 2) ?></div>
-                        <div style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">
-                            <strong>Tipo:</strong> <?= ucfirst($producto['tipo']) ?>
-                        </div>
-                    </div>
-                    
-                    <div class="producto-actions">
-                        <div class="btn-row">
-                            <button class="btn btn-editar" onclick="editarProducto(<?= htmlspecialchars(json_encode($producto)) ?>)">
-                                ✏️ Editar
-                            </button>
-                            
-                            <form method="POST" style="flex: 1;">
-                                <input type="hidden" name="id_producto" value="<?= $producto['id_producto'] ?>">
-                                <input type="hidden" name="nueva_disponibilidad" value="<?= $disponible ? 0 : 1 ?>">
-                                <button type="submit" name="cambiar_disponibilidad" 
-                                        class="btn <?= $disponible ? 'btn-desactivar' : 'btn-activar' ?>">
-                                    <?= $disponible ? '⏸️ Desactivar' : '▶️ Activar' ?>
-                                </button>
-                            </form>
-                        </div>
-                        
-                        <form method="POST" onsubmit="return confirm('¿Estás seguro de eliminar este producto?')">
-                            <input type="hidden" name="id_producto" value="<?= $producto['id_producto'] ?>">
-                            <button type="submit" name="eliminar_producto" class="btn btn-eliminar">
-                                🗑️ Eliminar Producto
-                            </button>
-                        </form>
-                    </div>
+        <?php if (!empty($mensaje)): ?>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="alert alert-<?= $tipo_mensaje ?> alert-dismissible fade show" role="alert" id="mensaje">
+                    <span><?= $mensaje ?></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" onclick="cerrarMensaje()"></button>
                 </div>
-                <?php
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4 mb-5">
+            <?php
+            if ($resultadoProductos && mysqli_num_rows($resultadoProductos) > 0) {
+                while ($producto = mysqli_fetch_assoc($resultadoProductos)) {
+                    $disponible = $producto['disponible'] == 1;
+                    ?>
+                    <div class="col d-flex">
+                        <div class="card card-producto-custom shadow-sm flex-fill <?= !$disponible ? 'no-disponible' : '' ?>">
+                            <div class="img-container-custom">
+                                <?php
+                                $imagen_corregida = str_replace('/politastehub/imagenes/', 'imagenes/', $producto['imagen_url']);
+                                ?>
+                                <img src="<?= htmlspecialchars($imagen_corregida) ?>"
+                                     class="card-img-top p-2"
+                                     alt="<?= htmlspecialchars($producto['nombre']) ?>"
+                                     onerror="this.src='imagenes/placeholder.png'; this.onerror=null;" />
+                            </div>
+
+                            <div class="card-body d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h5 class="card-title fw-bold mb-0"><?= htmlspecialchars($producto['nombre']) ?></h5>
+                                    <span class="badge rounded-pill text-bg-<?= $disponible ? 'success' : 'danger' ?>">
+                                        <?= $disponible ? '<i class="bi bi-check-circle-fill"></i> Disponible' : '<i class="bi bi-x-circle-fill"></i> No Disponible' ?>
+                                    </span>
+                                </div>
+                                <p class="card-text text-muted small mb-1"><?= htmlspecialchars($producto['descripcion']) ?></p>
+                                <p class="card-text fw-bolder fs-5 text-danger">$<?= number_format($producto['precio'], 2) ?></p>
+                                <small class="text-secondary mb-3"><strong>Tipo:</strong> <?= ucfirst($producto['tipo']) ?></small>
+
+                                <div class="mt-auto pt-2">
+                                    <button class="btn btn-primary w-100 mb-2" onclick="editarProducto(<?= htmlspecialchars(json_encode($producto)) ?>)" data-bs-toggle="modal" data-bs-target="#editModal">
+                                        <i class="bi bi-pencil-square"></i> Editar
+                                    </button>
+
+                                    <form method="POST" class="d-flex mb-2">
+                                        <input type="hidden" name="id_producto" value="<?= $producto['id_producto'] ?>">
+                                        <input type="hidden" name="nueva_disponibilidad" value="<?= $disponible ? 0 : 1 ?>">
+                                        <button type="submit" name="cambiar_disponibilidad"
+                                                class="btn btn-<?= $disponible ? 'warning' : 'success' ?> w-100">
+                                            <?= $disponible ? '<i class="bi bi-pause-fill"></i> Desactivar' : '<i class="bi bi-play-fill"></i> Activar' ?>
+                                        </button>
+                                    </form>
+
+                                    <form method="POST" onsubmit="return confirm('¿Estás seguro de eliminar este producto?')" class="w-100">
+                                        <input type="hidden" name="id_producto" value="<?= $producto['id_producto'] ?>">
+                                        <button type="submit" name="eliminar_producto" class="btn btn-danger w-100">
+                                            <i class="bi bi-trash-fill"></i> Eliminar Producto
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php
+                }
+            } else {
+                echo '<div class="col-12"><p class="text-center text-secondary fs-5 mt-5"><i class="bi bi-box-seam-fill"></i> No hay productos registrados</p></div>';
             }
-        } else {
-            echo '<p style="text-align: center; color: #9e9e9e; font-size: 1.2rem; margin: 2rem;">📦 No hay productos registrados</p>';
-        }
-        ?>
-    </div>
-
-    <!-- Modal para editar producto -->
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="cerrarModal()">&times;</span>
-            <h2 style="color: #bf360c; text-align: center;">✏️ Editar Producto</h2>
-            
-            <form method="POST" id="editForm" enctype="multipart/form-data">
-                <input type="hidden" name="id_producto" id="edit_id">
-                
-                <label for="edit_nombre">Nombre:</label>
-                <input type="text" name="nombre" id="edit_nombre" required>
-                
-                <label for="edit_descripcion">Descripción:</label>
-                <textarea name="descripcion" id="edit_descripcion" rows="3" required></textarea>
-                
-                <label for="edit_precio">Precio:</label>
-                <input type="number" name="precio" id="edit_precio" step="0.01" min="0" required>
-                
-                <label>Imagen del Producto:</label>
-                
-                <!-- Opciones de tipo de imagen para editar -->
-                <div style="margin-bottom: 1rem;">
-                    <div style="margin-bottom: 0.5rem;">
-                        <input type="radio" name="tipo_imagen_edit" value="url" id="url_edit" checked onchange="cambiarTipoImagenEdit()">
-                        <label for="url_edit" style="display: inline; margin-left: 0.5rem;">🌐 Usar URL de imagen</label>
-                    </div>
-                    <div>
-                        <input type="radio" name="tipo_imagen_edit" value="subir" id="subir_edit" onchange="cambiarTipoImagenEdit()">
-                        <label for="subir_edit" style="display: inline; margin-left: 0.5rem;">📷 Subir nueva imagen</label>
-                    </div>
-                </div>
-                
-                <!-- URL de imagen -->
-                <div id="urlImagenEdit">
-                    <input type="text" name="imagen_url" id="edit_imagen" required 
-                           placeholder="URL de la imagen">
-                </div>
-                
-                <!-- Subir archivo -->
-                <div id="subirArchivoEdit" style="display: none;">
-                    <input type="file" name="imagen_archivo_edit" accept="image/*" onchange="previewUploadedImageEdit()" 
-                           style="margin-bottom: 0.5rem; padding: 0.5rem; border: 2px dashed #ff6f00; background-color: #fff8f0; border-radius: 0.5rem;">
-                    <small style="color: #666; display: block;">Formatos permitidos: JPG, PNG, GIF (máximo 5MB)</small>
-                </div>
-                
-                <!-- Vista previa para modal -->
-                <div id="imagePreviewEdit" style="display: none; text-align: center; margin-top: 1rem;">
-                    <p style="margin-bottom: 0.5rem; font-weight: 600;">Vista previa:</p>
-                    <img id="previewImgEdit" style="max-width: 150px; max-height: 100px; border-radius: 0.5rem; border: 2px solid #ddd;" alt="Vista previa">
-                </div>
-                
-                <div class="modal-buttons">
-                    <button type="button" class="btn btn-desactivar" onclick="cerrarModal()">Cancelar</button>
-                    <button type="submit" name="actualizar_producto" class="btn btn-editar">Guardar Cambios</button>
-                </div>
-            </form>
+            ?>
         </div>
     </div>
 
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel"><i class="bi bi-pencil-square"></i> Editar Producto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" id="editForm" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <input type="hidden" name="id_producto" id="edit_id">
+
+                        <div class="mb-3">
+                            <label for="edit_nombre" class="form-label">Nombre:</label>
+                            <input type="text" name="nombre" id="edit_nombre" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="edit_descripcion" class="form-label">Descripción:</label>
+                            <textarea name="descripcion" id="edit_descripcion" class="form-control" rows="3" required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="edit_precio" class="form-label">Precio:</label>
+                            <input type="number" name="precio" id="edit_precio" class="form-control" step="0.01" min="0" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Imagen del Producto:</label>
+
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="tipo_imagen_edit" value="url" id="url_edit" checked onchange="cambiarTipoImagenEdit()">
+                                <label class="form-check-label" for="url_edit"><i class="bi bi-link-45deg"></i> Usar URL de imagen</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="tipo_imagen_edit" value="subir" id="subir_edit" onchange="cambiarTipoImagenEdit()">
+                                <label class="form-check-label" for="subir_edit"><i class="bi bi-camera-fill"></i> Subir nueva imagen</label>
+                            </div>
+
+                            <div id="urlImagenEdit" class="mt-2">
+                                <input type="text" name="imagen_url" id="edit_imagen" class="form-control" required placeholder="URL de la imagen">
+                            </div>
+
+                            <div id="subirArchivoEdit" class="mt-2" style="display: none;">
+                                <input type="file" name="imagen_archivo_edit" accept="image/*" onchange="previewUploadedImageEdit()" class="form-control">
+                                <small class="text-muted d-block mt-1">Formatos permitidos: JPG, PNG, GIF (máximo 5MB)</small>
+                            </div>
+                        </div>
+
+                        <div id="imagePreviewEdit" class="text-center mt-3" style="display: none;">
+                            <p class="mb-2 fw-bold">Vista previa:</p>
+                            <img id="previewImgEdit" class="img-thumbnail" style="max-width: 150px; max-height: 100px;" alt="Vista previa">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" name="actualizar_producto" class="btn btn-primary">Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script>
+        const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+
         function editarProducto(producto) {
             document.getElementById('edit_id').value = producto.id_producto;
             document.getElementById('edit_nombre').value = producto.nombre;
             document.getElementById('edit_descripcion').value = producto.descripcion;
             document.getElementById('edit_precio').value = producto.precio;
-            
-            // Corregir ruta de imagen si tiene formato antiguo y cargar en URL por defecto
+
             let imagenCorregida = producto.imagen_url.replace('/politastehub/imagenes/', 'imagenes/');
             document.getElementById('edit_imagen').value = imagenCorregida;
-            
-            // Resetear opciones del modal
+
             document.getElementById('url_edit').checked = true;
             cambiarTipoImagenEdit();
             document.getElementById('imagePreviewEdit').style.display = 'none';
-            
-            document.getElementById('editModal').style.display = 'block';
         }
 
         function cambiarTipoImagenEdit() {
             const url = document.getElementById('url_edit').checked;
             document.getElementById('urlImagenEdit').style.display = url ? 'block' : 'none';
             document.getElementById('subirArchivoEdit').style.display = url ? 'none' : 'block';
-            
-            // Limpiar vista previa al cambiar
             document.getElementById('imagePreviewEdit').style.display = 'none';
-            
-            // Limpiar archivo seleccionado si se cambia a URL
+
             if (url) {
                 const fileInput = document.querySelector('input[name="imagen_archivo_edit"]');
                 if (fileInput) fileInput.value = '';
@@ -638,17 +375,15 @@ if (isset($_GET['error'])) {
             const file = document.querySelector('input[name="imagen_archivo_edit"]').files[0];
             const preview = document.getElementById('imagePreviewEdit');
             const previewImg = document.getElementById('previewImgEdit');
-            
+
             if (file) {
-                // Validar tamaño (5MB máximo)
                 if (file.size > 5 * 1024 * 1024) {
                     alert('El archivo es demasiado grande. Máximo 5MB permitido.');
                     document.querySelector('input[name="imagen_archivo_edit"]').value = '';
                     preview.style.display = 'none';
                     return;
                 }
-                
-                // Validar tipo
+
                 const tiposPermitidos = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
                 if (!tiposPermitidos.includes(file.type)) {
                     alert('Formato no válido. Solo se permiten: JPG, PNG, GIF');
@@ -656,7 +391,7 @@ if (isset($_GET['error'])) {
                     preview.style.display = 'none';
                     return;
                 }
-                
+
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     previewImg.src = e.target.result;
@@ -668,64 +403,43 @@ if (isset($_GET['error'])) {
             }
         }
 
-        function cerrarModal() {
-            document.getElementById('editModal').style.display = 'none';
-            // Limpiar formulario del modal
+        document.getElementById('editModal').addEventListener('hidden.bs.modal', function () {
             document.getElementById('editForm').reset();
             document.getElementById('imagePreviewEdit').style.display = 'none';
-        }
+        });
 
         function cerrarMensaje() {
-            const mensaje = document.getElementById('mensaje');
-            if (mensaje) {
-                mensaje.style.opacity = '0';
-                mensaje.style.transform = 'translateY(-20px)';
-                setTimeout(() => {
-                    mensaje.parentElement.remove();
-                    // Limpiar la URL sin recargar la página
-                    if (window.history.replaceState) {
-                        window.history.replaceState({}, document.title, window.location.pathname);
-                    }
-                }, 300);
+            if (window.history.replaceState) {
+                window.history.replaceState({}, document.title, window.location.pathname);
             }
         }
 
-        // Cerrar modal al hacer clic fuera de él
-        window.onclick = function(event) {
-            var modal = document.getElementById('editModal');
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
-        }
-
-        // Auto-cerrar mensaje después de 5 segundos
         document.addEventListener('DOMContentLoaded', function() {
-            const mensaje = document.getElementById('mensaje');
-            if (mensaje) {
+            const mensajeElement = document.getElementById('mensaje');
+            if (mensajeElement) {
                 setTimeout(() => {
-                    cerrarMensaje();
+                     const alert = bootstrap.Alert.getOrCreateInstance(mensajeElement);
+                     alert.close();
                 }, 5000);
             }
         });
 
-        // Validación del formulario de edición
         document.getElementById('editForm').addEventListener('submit', function(e) {
             const precio = parseFloat(document.getElementById('edit_precio').value);
-            
+
             if (precio <= 0) {
                 e.preventDefault();
                 alert('El precio debe ser mayor a 0');
                 return false;
             }
-            
-            // Validar que se haya proporcionado una imagen
+
             const tipoImagen = document.querySelector('input[name="tipo_imagen_edit"]:checked').value;
-            
+
             if (tipoImagen === 'subir') {
                 const archivo = document.querySelector('input[name="imagen_archivo_edit"]').files[0];
-                if (!archivo) {
+                if (!archivo && document.getElementById('edit_imagen').value.trim() === '') {
                     e.preventDefault();
-                    alert('Por favor selecciona una imagen para subir');
+                    alert('Por favor selecciona una imagen para subir o usa la URL.');
                     return false;
                 }
             } else {

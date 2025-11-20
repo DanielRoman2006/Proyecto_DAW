@@ -2,9 +2,7 @@
 session_start();
 include 'conexion.php';
 
-// Manejo de formularios de POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-	// Acción: cambiar contraseña como admin
 	if (isset($_POST['action']) && $_POST['action'] === 'cambiar_contrasena_admin') {
 		$target = mysqli_real_escape_string($conn, $_POST['target_matricula']);
 		$nueva = isset($_POST['nueva_contrasena']) ? $_POST['nueva_contrasena'] : '';
@@ -16,7 +14,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		} elseif ($nueva !== $confirm) {
 			$mensaje_error = 'Las contraseñas nuevas no coinciden.';
 		} else {
-			// Determinar matrícula del administrador en sesión
 			$admin_matricula = null;
 			if (!empty($_SESSION['admin_id'])) $admin_matricula = $_SESSION['admin_id'];
 			elseif (!empty($_SESSION['matricula'])) $admin_matricula = $_SESSION['matricula'];
@@ -25,7 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			if (empty($admin_matricula)) {
 				$mensaje_error = 'No se pudo verificar la sesión de administrador. Inicia sesión nuevamente.';
 			} else {
-				// Usar helper para detectar la columna de contraseña
 				$password_col = function_exists('getPasswordColumn') ? getPasswordColumn($conn, 'usuarios') : null;
 
 				if (is_null($password_col)) {
@@ -34,7 +30,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 					$adminIdentifier = mysqli_real_escape_string($conn, $admin_matricula);
 					$admin_found = false;
 
-					// Intentar verificar al administrador en la tabla administradores
 					$password_col_admin = function_exists('getPasswordColumn') ? getPasswordColumn($conn, 'administradores') : null;
 					if (!is_null($password_col_admin)) {
 						if (ctype_digit($adminIdentifier)) {
@@ -46,7 +41,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 						if ($r && $row = mysqli_fetch_assoc($r)) { $admin_found = true; }
 					}
 
-					// Si no se encontró en administradores, fallback a usuarios
 					if (!$admin_found) {
 						$q = "SELECT `" . $password_col . "` AS current_pass FROM usuarios WHERE matricula = '" . mysqli_real_escape_string($conn, $admin_matricula) . "' LIMIT 1";
 						$r = mysqli_query($conn, $q);
@@ -76,12 +70,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		}
 	}
 	
-	// Acción: dar de baja usuario
 	if (isset($_POST['action']) && $_POST['action'] === 'dar_baja_usuario') {
 		$target = mysqli_real_escape_string($conn, $_POST['target_matricula_baja']);
 		$admin_pass = isset($_POST['admin_password_baja']) ? $_POST['admin_password_baja'] : '';
 
-		// Verificación admin igual que en cambio de contraseña
 		$admin_matricula = null;
 		if (!empty($_SESSION['admin_id'])) $admin_matricula = $_SESSION['admin_id'];
 		elseif (!empty($_SESSION['matricula'])) $admin_matricula = $_SESSION['matricula'];
@@ -111,7 +103,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			if (!$admin_valid) {
 				$mensaje_error = 'Contraseña de administrador incorrecta.';
 			} else {
-				// Eliminar usuario
 				$del = "DELETE FROM usuarios WHERE matricula = '" . $target . "'";
 				if (mysqli_query($conn, $del)) {
 					$mensaje_exito = 'Usuario dado de baja correctamente (matrícula ' . htmlspecialchars($target) . ').';
@@ -124,7 +115,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		}
 	}
 
-	// Acción: actualizar datos de usuario (correo / bloqueado)
 	if (isset($_POST['matricula']) && (!isset($_POST['action']) || $_POST['action'] !== 'cambiar_contrasena_admin')) {
 		$matricula = mysqli_real_escape_string($conn, $_POST['matricula']);
 		$nuevoEstado = isset($_POST['bloqueado']) ? intval($_POST['bloqueado']) : 0;
@@ -171,7 +161,6 @@ $resultado = mysqli_query($conn, $consulta);
 ?>
 <?php include 'encabezadoAdmin.php'; ?>
 	<style>
-	/* Aumentar grosor de texto para mejorar visibilidad */
 	h1 {
 		font-weight: 700;
 		text-align: center;
@@ -384,7 +373,6 @@ $resultado = mysqli_query($conn, $consulta);
 						</button>
 					</div>
 
-					<!-- Modal cambio de contraseña -->
 					<div class="modal fade" id="modalChange<?= $user['matricula'] ?>" tabindex="-1" aria-labelledby="modalChangeLabel<?= $user['matricula'] ?>" aria-hidden="true">
 						<div class="modal-dialog">
 							<div class="modal-content" style="border-radius:10px;">
@@ -418,7 +406,6 @@ $resultado = mysqli_query($conn, $consulta);
 						</div>
 					</div>
 
-					<!-- Modal Dar de baja -->
 					<div class="modal fade" id="modalBaja<?= $user['matricula'] ?>" tabindex="-1" aria-labelledby="modalBajaLabel<?= $user['matricula'] ?>" aria-hidden="true">
 						<div class="modal-dialog">
 							<div class="modal-content" style="border-radius:10px;">

@@ -42,6 +42,7 @@
             width: 24px;
             height: 24px;
             margin-bottom: 2px;
+            fill: white; 
         }
 
         @media (max-width: 600px) {
@@ -109,15 +110,24 @@
                         <span>Aviso de Privacidad</span>
                     </a>
                 </li>
+                
+                <li class="nav-item">
+                    <a href="resenas.php" class="nav-link">
+                        <svg class="nav-icon" viewBox="0 0 24 24">
+                            <path d="M12 17.27L18.18 21 16.54 13.97 22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" fill="white"/>
+                        </svg>
+                        <span>Reseñas</span>
+                    </a>
+                </li>
 
-                  <li class="nav-item ms-3">
-        <a href="login.php" class="btn btn-outline-light btn-sm" 
-           style="transition: 0.3s; color: white; border-color: white;"
-           onmouseover="this.style.backgroundColor='#fff'; this.style.color='#ff6f00';"
-           onmouseout="this.style.backgroundColor='transparent'; this.style.color='white';">
-            Iniciar sesión
-        </a>
-    </li>
+                <li class="nav-item ms-3">
+                    <a href="login.php" class="btn btn-outline-light btn-sm" 
+                        style="transition: 0.3s; color: white; border-color: white;"
+                        onmouseover="this.style.backgroundColor='#fff'; this.style.color='#ff6f00';"
+                        onmouseout="this.style.backgroundColor='transparent'; this.style.color='white';">
+                        Iniciar sesión
+                    </a>
+                </li>
     
             </ul>
         </div>
@@ -129,66 +139,4 @@
 <script src="mobileImprovements.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
  
-<div class="modal fade" id="resenaModal" tabindex="-1" aria-labelledby="resenaModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="resenaModalLabel">Deja tu reseña</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-            <form action="guardar_resena.php" method="post">
-                <div class="modal-body">
-                    <p>Tu opinión nos ayuda a mejorar. Revisa lo que otros han dicho y, si quieres, deja tu reseña abajo.</p>
-
-                    <div id="resenasListWrapper" class="mb-3">
-                        <div id="resenasList" class="text-center text-muted">Cargando reseñas...</div>
-                    </div>
-
-                    <hr>
-
-                    <div class="mb-3">
-                        <label class="form-label">Calificación</label>
-                        <select name="calificacion" class="form-select" required>
-                            <option value="">Selecciona...</option>
-                            <option value="5">5 — Excelente</option>
-                            <option value="4">4 — Muy buena</option>
-                            <option value="3">3 — Buena</option>
-                            <option value="2">2 — Regular</option>
-                            <option value="1">1 — Mala</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Comentario</label>
-                        <textarea name="comentario" class="form-control" rows="4" maxlength="1000" placeholder="Escribe tu reseña..." required></textarea>
-                    </div>
-
-                    <div class="form-text">Debes iniciar sesión como usuario para dejar una reseña.</div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="submit" class="btn" style="background:#FF8F00;color:#fff;border-color:#FF8F00">Enviar reseña</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<script>
-document.addEventListener('DOMContentLoaded', function(){
-    var resenaModal = document.getElementById('resenaModal');
-    if (!resenaModal) return;
-
-    resenaModal.addEventListener('show.bs.modal', function (event) {
-        var list = document.getElementById('resenasList');
-        if (!list) return;
-        list.innerHTML = 'Cargando reseñas...';
-
-        var resenaUrl = '/Proyecto_DAW/mostrar_resena.php';
-        console.log('Fetching reseñas from', resenaUrl);
-        fetch(resenaUrl, { method: 'GET', credentials: 'same-origin' })
-            .then(function(resp){ if (!resp.ok) throw new Error('HTTP ' + resp.status); return resp.text(); })
-            .then(function(html){ list.innerHTML = html; })
-            .catch(function(err){ console.error('Error cargando reseñas:', err); list.innerHTML = '<div class="text-muted">Error cargando reseñas.</div>'; });
-    });
-});
-</script>
+</body>
