@@ -17,15 +17,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nueva_contra = $_POST['nueva_contra'];
     $admin_contra = $_POST['admin_contra'];
 
-    // Validar contraseña admin
     $admin_id = $_SESSION['admin_id'];
-    // Usar el nombre real de la columna en la BD (`contraseña`) y devolverla como current_pass
     $consulta_admin = "SELECT `contraseña` AS current_pass FROM usuarios WHERE matricula = '" . mysqli_real_escape_string($conn, $admin_id) . "' AND bloqueado = 0";
     $resultado_admin = mysqli_query($conn, $consulta_admin);
     if ($row_admin = mysqli_fetch_assoc($resultado_admin)) {
         $stored = $row_admin['current_pass'];
         if ((function_exists('password_verify') && password_verify($admin_contra, $stored)) || $admin_contra === $stored) {
-            // Actualizar contraseña del usuario en la columna `contraseña`
             $hash = password_hash($nueva_contra, PASSWORD_DEFAULT);
             $update = "UPDATE usuarios SET `contraseña` = '" . mysqli_real_escape_string($conn, $hash) . "' WHERE matricula = '" . mysqli_real_escape_string($conn, $matricula) . "'";
             if (mysqli_query($conn, $update)) {
