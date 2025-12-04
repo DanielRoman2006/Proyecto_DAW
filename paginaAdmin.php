@@ -301,25 +301,20 @@ document.addEventListener('DOMContentLoaded', function() {
             
             let mostrar = true;
             
-            // 1. Aplicar la lógica de exclusión/filtro de estado (la misma que en PHP)
             if (estadoFiltro) {
-                // Si hay un filtro de estado seleccionado, solo mostrar ese estado
                 if (estadoActual !== estadoFiltro) {
                     mostrar = false;
                 }
             } else {
-                // Si no hay filtro de estado, ocultar "entregado" y "cancelado"
                 if (estadoActual === 'entregado' || estadoActual === 'cancelado') {
                     mostrar = false;
                 }
             }
             
-            // 2. Aplicar la búsqueda por texto
             if (mostrar && searchTerm && !textoCard.includes(searchTerm)) {
                 mostrar = false;
             }
             
-            // 3. Aplicar el filtro de fecha
             if (mostrar && fechaFiltro) {
                 const fechaCardText = card.querySelector('.pedido-info').textContent.match(/Fecha:\s*(\d{2}\/\d{2}\/\d{4})/);
                 if (fechaCardText && fechaCardText[1]) {
@@ -328,7 +323,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         mostrar = false;
                     }
                 } else {
-                    mostrar = false; // Si no hay fecha en la tarjeta, no mostrar
+                    mostrar = false; 
                 }
             }
             

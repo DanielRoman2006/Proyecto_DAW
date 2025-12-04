@@ -2,7 +2,6 @@
 session_start();
 require_once 'conexion.php';
 
-// Redirige si no hay sesión activa
 if (!isset($_SESSION['role'])) {
     header('Location: login.php');
     exit;
@@ -11,9 +10,7 @@ if (!isset($_SESSION['role'])) {
 $role = $_SESSION['role'];
 $info = [];
 
-// ----------------------------------------------------
-// Lógica de recuperación de información del perfil
-// ----------------------------------------------------
+
 if ($role === 'user' && isset($_SESSION['matricula'])) {
     $mat = $_SESSION['matricula'];
     $stmt = $conn->prepare('SELECT matricula, nombre, correo, fecha_registro FROM usuarios WHERE matricula = ? LIMIT 1');
@@ -34,13 +31,9 @@ if ($role === 'user' && isset($_SESSION['matricula'])) {
     }
 }
 
-// ----------------------------------------------------
-// INCLUSIÓN CONDICIONAL DEL ENCABEZADO
-// ----------------------------------------------------
 if ($role === 'admin') {
     include 'encabezadoAdmin.php';
 } else {
-    // Si es 'user' u otro rol autenticado, usa el encabezado de sesión estándar
     include 'encabezado_con_sesion.php';
 }
 ?>
@@ -60,7 +53,6 @@ if ($role === 'admin') {
                                 <?php foreach ($info as $key => $val): ?>
                                     <tr>
                                         <th style="text-transform:capitalize; width:35%;">
-                                            <!-- Mejorar la presentación de la clave -->
                                             <?= htmlspecialchars(str_replace('_', ' ', $key)) ?>
                                         </th>
                                         <td><?= htmlspecialchars($val) ?></td>

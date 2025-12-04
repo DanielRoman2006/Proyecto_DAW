@@ -8,7 +8,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $pass = trim($_POST['password'] ?? '');
 
   if ($ident !== '') {
-    // 1) Intentar buscar administrador por nombre de usuario
     $stmt = $conn->prepare('SELECT id_admin, usuario, nombre FROM administradores WHERE usuario = ? AND contraseña = ? LIMIT 1');
     if ($stmt) {
       $stmt->bind_param('ss', $ident, $pass);
@@ -25,7 +24,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
     }
 
-    // 2) Si no se encontró y el identificador es numérico, intentar por id_admin
     if (ctype_digit($ident)) {
       $id_admin = intval($ident);
       $stmt = $conn->prepare('SELECT id_admin, usuario, nombre FROM administradores WHERE id_admin = ? AND contraseña = ? LIMIT 1');
@@ -45,7 +43,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
     }
 
-    // 3) Intentar como usuario normal (matrícula)
     $stmt = $conn->prepare('SELECT matricula, nombre FROM usuarios WHERE matricula = ? AND contraseña = ? LIMIT 1');
     if ($stmt) {
       $stmt->bind_param('ss', $ident, $pass);
