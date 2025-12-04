@@ -123,7 +123,6 @@ main {
     color: white;
 }
 
-/* Modal action button (detail view) - visually distinct and slightly larger font */
 .modal-add-button {
     background: linear-gradient(0deg, #ff6f00 60%, #fff7f0 100%);
     border: 2px solid rgba(255,111,0,0.5);

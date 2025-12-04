@@ -76,7 +76,6 @@ if ($stats['total'] > 0) {
     $stats['promedio'] = round($suma_total / $stats['total'], 1);
 }
 
-// Lógica de inclusión del encabezado
 if ($usuario_autenticado) {
     include 'encabezado_con_sesion.php';
 } else {
@@ -284,7 +283,7 @@ if ($usuario_autenticado) {
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            <?php if ($usuario_autenticado): ?> // CORRECCIÓN: Se usa $usuario_autenticado
+            <?php if ($usuario_autenticado): ?> 
             const stars = document.querySelectorAll('.star');
             const ratingInput = document.getElementById('calificacionInput');
             const ratingText = document.getElementById('ratingText');

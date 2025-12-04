@@ -16,9 +16,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $new = $_POST['new_password'] ?? '';
     $confirm = $_POST['confirm_password'] ?? '';
 
-    // Uso de hashing de contraseñas (Recomendación de seguridad: si bien tu código no lo usa,
-    // es crucial usar `password_verify` y `password_hash` en entornos reales)
-    
     if (empty($current) || empty($new) || empty($confirm)) {
         $error = 'Completa todos los campos.';
     } elseif ($new !== $confirm) {
@@ -34,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $res = $stmt->get_result();
             if ($res && $res->num_rows === 1) {
                 $row = $res->fetch_assoc();
-                if ($row['contraseña'] === $current) { // Comparación directa (sin hash)
+                if ($row['contraseña'] === $current) { 
                     $upd = $conn->prepare('UPDATE usuarios SET contraseña = ? WHERE matricula = ?');
                     $upd->bind_param('ss', $new, $mat);
                     if ($upd->execute()) {
@@ -56,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $res = $stmt->get_result();
             if ($res && $res->num_rows === 1) {
                 $row = $res->fetch_assoc();
-                if ($row['contraseña'] === $current) { // Comparación directa (sin hash)
+                if ($row['contraseña'] === $current) { 
                     $upd = $conn->prepare('UPDATE administradores SET contraseña = ? WHERE id_admin = ?');
                     $upd->bind_param('si', $new, $id);
                     if ($upd->execute()) {
@@ -76,13 +73,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// ----------------------------------------------------
-// INCLUSIÓN CONDICIONAL DEL ENCABEZADO
-// ----------------------------------------------------
+
 if ($role === 'admin') {
     include 'encabezadoAdmin.php';
 } else {
-    // Si es 'user' u otro rol autenticado, usa el encabezado de sesión estándar
+    
     include 'encabezado_con_sesion.php';
 }
 ?>
@@ -115,8 +110,7 @@ if ($role === 'admin') {
                         <h5 class="mb-0" style="color:var(--guinda);font-weight:700">Cambiar contraseña</h5>
                         <small class="text-muted">Actualiza tu contraseña de forma segura</small>
                     </div>
-                    <!-- Nota: Se recomienda evitar rutas relativas como 'imagenes/UpQroo.jpg'
-                         ya que el archivo puede ser accedido desde diferentes niveles. -->
+                    
                     <img src="imagenes/UpQroo.jpg" alt="UpQroo" style="height:44px;border-radius:6px;object-fit:cover">
                 </div>
                 <div class="card-body">
